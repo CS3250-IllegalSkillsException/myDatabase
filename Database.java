@@ -64,9 +64,41 @@ public class Database {
     private void modify() {
     	return;
     }
-    
-    private void delete() {
-    	return;
+
+    private void delete(String id) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        String jdbcURL = "jdbc:mysql://localhost:3306/test";
+        String username = "";
+        String password = "";
+
+        try{
+            connection = DriverManager.getConnection(jdbcURL, username, password);
+            preparedStatement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");
+            preparedStatement.setString(1,id);
+            preparedStatement.executeUpdate();
+
+            System.out.println("Deleting Product ID: " + id);
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null){
+                try{
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null){
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
     
