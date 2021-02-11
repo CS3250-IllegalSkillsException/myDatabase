@@ -135,6 +135,7 @@ public class Database {
             statement.executeBatch();
             connection.commit();
             connection.close();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
@@ -149,7 +150,7 @@ public class Database {
     	return;
     }
     
-    public static void delete(String id) {
+
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         String jdbcURL = "jdbc:mysql://localhost:3306/test";
