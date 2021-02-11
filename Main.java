@@ -9,7 +9,7 @@ public class Main {
 	public static void menuLoop() {
 		String error = "error";
 		while(error.contentEquals("error")) {
-		System.out.println("Would you like to use a database different than 'root'? (Y/N)");
+		System.out.println("Would you like to use a database different than 'root'? (Y/N) Enter X to quit.");
 		String csvReply = input.nextLine();
 
 		if (csvReply.contentEquals("Y")){
@@ -22,7 +22,6 @@ public class Main {
 			System.out.println("Database URL: ");
 			String url = input.nextLine();
 			Database db = new Database(username, password, url);
-			db.importFromCsvFile();
 			optionLoop(db);
 		} else if (csvReply.contentEquals("N")) {
 			System.out.println("Please provide login info");
@@ -32,8 +31,10 @@ public class Main {
 			System.out.println("Password: ");
 			String password = input.nextLine();
 			Database db = new Database(username, password);
-			db.importFromCsvFile();
 			optionLoop(db);
+		} else if (csvReply.contentEquals("X")) {
+			System.out.println("Exiting program...");
+			break;
 		} else {
 			error = "error";
 			System.out.println("Invalid Response. Please enter Y or N.");
@@ -46,14 +47,19 @@ public class Main {
 		while(notDone != "N") {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
 		String editReply = input.nextLine();
-			if (editReply.contentEquals("Y")){
+			if (editReply.contentEquals("Y")) {
 				notDone = "";
 				System.out.println("Please enter one of the following options.");
+				System.out.println("[Q] to import from csv file");
 				System.out.println("[I] to insert new entry");
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
 				String editOption = input.nextLine();
-				if(editOption.contentEquals("I")) {
+				if(editOption.contentEquals("Q")) {
+					System.out.println("------Importing... Please wait------");
+					db.importFromCsvFile();
+					System.out.println("-----------Complete!-----------");
+				} else if(editOption.contentEquals("I")) {
 					System.out.println("-----------New Entry-----------");
 					System.out.println("New Product ID: ");
 					String product_id = input.nextLine();
@@ -66,7 +72,7 @@ public class Main {
 					System.out.println("New Supplier ID: ");
 					String supplier_id = input.nextLine();
 					db.insert(product_id, quantity, wholesale_cost, sale_price, supplier_id);
-					} else if(editOption.contentEquals("D")) {
+				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");
 					System.out.println("Enter Product ID: ");
 					String product_id = input.nextLine();
@@ -88,6 +94,7 @@ public class Main {
 				System.out.println("Invalid Response. Please enter Y or N.");
 				}
 			}
+			db.closeConnection(); //Cleans up out connection. We can move this to a destructor later.
 		}
 	}
 

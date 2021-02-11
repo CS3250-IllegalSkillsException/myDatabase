@@ -55,6 +55,19 @@ public class Database {
             return csvFilePath;
         }
 
+        public void closeConnection(){
+            try{
+                connection.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         //attempts to connect to the SQL database. Returns true if successful, false if unsuccessful.
         public boolean initializeConnection(){
             try {
@@ -74,31 +87,30 @@ public class Database {
 
         public void importFromCsvFile() {
             try {
-            	String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement statement = connection.prepareStatement(sql);
                 BufferedReader lineReader = new BufferedReader(new FileReader(csvFilePath));
                 String lineText = null;
-                int count = 0;
                 lineReader.readLine(); // skip header line
+                String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                int count = 0;
                 while ((lineText = lineReader.readLine()) != null) {
                     String[] data = lineText.split(",");
-                    String product_id = data[0];
-                    String quantity = data[1];
-                    String wholesale_cost = data[2];
-                    String sale_price = data[3];
-                    String supplier_id = data[4];
-                    statement.setString(1, product_id);
-                    statement.setString(2, quantity);
-                    statement.setString(3, wholesale_cost);
-                    statement.setString(4, sale_price);
-                    statement.setString(5, supplier_id);
-                    statement.executeBatch();
+                    statement.setString(1, data[0]);
+                    statement.setString(2, data[1]);
+                    statement.setString(3, data[2]);
+                    statement.setString(4, data[3]);
+                    statement.setString(5, data[4]);
+                    statement.addBatch();
+                    if (count >= 20) {
+                        statement.executeBatch();
+                        count = 0;
+                    }
+                    count++;
                 }
                 lineReader.close();
                 // execute the remaining queries
                 statement.executeBatch();
                 connection.commit();
-                connection.close();
             } catch (IOException ex) {
                 System.err.println(ex);
             } catch (SQLException ex) {
@@ -116,13 +128,7 @@ public class Database {
     }
     
     public void insert(String product_id, String quantity, String wholesale_cost, String sale_price, String supplier_id) {
-        String jdbcURL = "jdbc:mysql://localhost:3306/test";
-        String username = " ";
-        String password = " ";
-        Connection connection = null;
         try {
-            connection = DriverManager.getConnection(jdbcURL, username, password);
-            connection.setAutoCommit(false);
             String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, product_id);
@@ -134,7 +140,6 @@ public class Database {
             statement.addBatch();
             statement.executeBatch();
             connection.commit();
-            connection.close();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -147,41 +152,25 @@ public class Database {
     }
     
     public void modify() {
+
     	return;
     }
     
-
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        String jdbcURL = "jdbc:mysql://localhost:3306/test";
-        String username = "";
-        String password = "";
-
+    public void delete(String id){
         try{
-            connection = DriverManager.getConnection(jdbcURL, username, password);
-            preparedStatement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");
-            preparedStatement.setString(1,id);
-            preparedStatement.executeUpdate();
-
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");
+            statement.setString(1,id);
+            statement.addBatch();
+            statement.executeBatch();
+            //preparedStatement.executeUpdate();
             System.out.println("Deleting Product ID: " + id);
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        } finally {
-            if (preparedStatement != null){
-                try{
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null){
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            connection.commit();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
