@@ -41,6 +41,7 @@ public class Database {
             statement.executeBatch();
             connection.commit();
             connection.close();
+
         } catch (IOException ex) {
             System.err.println(ex);
         } catch (SQLException ex) {
@@ -57,8 +58,34 @@ public class Database {
     	return;
     }
     
-    private void insert() {
-    	return;
+    private void insert(String product_id, String quantity, String wholesale_cost, String sale_price, String supplier_id) {
+        String jdbcURL = "jdbc:mysql://localhost:3306/test";
+        String username = " ";
+        String password = " ";
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(jdbcURL, username, password);
+            connection.setAutoCommit(false);
+            String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, product_id);
+            statement.setString(2, quantity);
+            statement.setString(3, wholesale_cost);
+            statement.setString(4, sale_price);
+            statement.setString(5, supplier_id);
+            // execute the remaining queries
+            statement.addBatch();
+            statement.executeBatch();
+            connection.commit();
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     private void modify() {
