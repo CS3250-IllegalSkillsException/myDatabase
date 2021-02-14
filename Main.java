@@ -91,6 +91,6 @@ public class Main {
 				System.out.println("Invalid Response. Please enter Y or N.");
 				}
 			}
-			db.closeConnection(); //Cleans up out connection. We can move this to a destructor later.
+			db.closeConnection(); //Cleans up out connection
 		}
 	}
