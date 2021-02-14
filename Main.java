@@ -38,7 +38,6 @@ public class Main {
 		} else {
 			error = "error";
 			System.out.println("Invalid Response. Please enter Y or N.");
-			//needs to loop back
 		}
 	}
 	}
