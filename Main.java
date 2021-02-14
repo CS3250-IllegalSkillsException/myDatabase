@@ -38,7 +38,6 @@ public class Main {
 		} else {
 			error = "error";
 			System.out.println("Invalid Response. Please enter Y or N.");
-			//needs to loop back
 		}
 	}
 	}
@@ -79,12 +78,9 @@ public class Main {
 					db.delete(product_id);
 				} else if(editOption.contentEquals("M")) {
 					System.out.println("-----------Modify Entry-----------");
-					System.out.println("Enter Prod"
-							+ "uct ID: ");
+					System.out.println("Enter Product ID to edit:");
 					String product_id = input.nextLine();
-					System.out.println("Enter field: ");
-					String choice = input.nextLine();
-					db.modify();
+					db.modify(product_id);
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
@@ -94,9 +90,6 @@ public class Main {
 				System.out.println("Invalid Response. Please enter Y or N.");
 				}
 			}
-			db.closeConnection(); //Cleans up out connection. We can move this to a destructor later.
+			db.closeConnection(); //Cleans up out connection
 		}
 	}
-
-
-
