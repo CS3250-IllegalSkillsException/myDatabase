@@ -152,26 +152,17 @@ public class Database {
         }
     }
     
-    public static void modify() {
+    public void modify() {
         PreparedStatement preparedStatement;
-        Connection connection;
-        String jdbcURL = "jdbc:mysql://localhost:3306/test";
-        String username = "root";
-        String password = "SMapi3407";
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter Product ID to edit: ");
         String prodIDinput = scanner.nextLine();
         try {
-            connection = DriverManager.getConnection(jdbcURL, username, password);
-
             String loop;
-
-
             do {
                 System.out.println("Which column would you like to update?" +
                         "\n 1. Quantity \n 2. Wholesale Cost \n 3. Sale Price \n 4. Supplier ID");
                 int column = scanner.nextInt();
-
                 switch (column) {
 
                     case 1:
@@ -233,17 +224,13 @@ public class Database {
                             System.out.println("Error updating value");
                         }
                         break;
-
-
                 }
                 System.out.println("Would you like to make another change to this product? Y/N");
                 loop = scanner.next();
             }
             while (!loop.equals("N") && !loop.equals("n"));
-
+            connection.commit();
             System.out.println("Updates complete.");
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -9,7 +9,8 @@ public class Main {
 	public static void menuLoop() {
 		String error = "error";
 		while(error.contentEquals("error")) {
-		System.out.println("Would you like to use a database different than 'root'? (Y/N) Enter X to quit.");
+		System.out.println("Welcome to the inventory database editor.");
+		System.out.println("Would you like to use a database other than the local database? (Y/N) Enter X to quit.");
 		String csvReply = input.nextLine();
 
 		if (csvReply.contentEquals("Y")){
@@ -78,9 +79,7 @@ public class Main {
 					db.delete(product_id);
 				} else if(editOption.contentEquals("M")) {
 					System.out.println("-----------Modify Entry-----------");
-					System.out.println("Enter Product ID to edit:");
-					String product_id = input.nextLine();
-					db.modify(product_id);
+					db.modify();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
