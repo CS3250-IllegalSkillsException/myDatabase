@@ -54,6 +54,7 @@ public class Main {
 				System.out.println("[I] to insert new entry");
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
+				System.out.println("[R] to read an entry");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
