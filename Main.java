@@ -80,6 +80,9 @@ public class Main {
 				} else if(editOption.contentEquals("M")) {
 					System.out.println("-----------Modify Entry-----------");
 					db.modify();
+				} else if(editOption.contentEquals("R")) {
+					System.out.println("-----------Read Entry-----------");
+					db.read();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
