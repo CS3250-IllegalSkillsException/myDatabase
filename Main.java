@@ -2,47 +2,71 @@ import java.util.Scanner;
 
 public class Main {
 	public static void main(String[] args) {
-		menuLoop();		
+			menuLoop();
 	}
 	static Scanner input = new Scanner(System.in);
 
 	public static void menuLoop() {
-		String error = "error";
-		while(error.contentEquals("error")) {
-		System.out.println("Welcome to the inventory database editor.");
-		System.out.println("Would you like to use a database other than the local database? (Y/N) Enter X to quit.");
-		String csvReply = input.nextLine();
-
-		if (csvReply.contentEquals("Y")){
-			System.out.println("Please provide login info");
-			Scanner input = new Scanner(System.in);
-			System.out.println("Username: ");
-			String username = input.nextLine();
-			System.out.println("Password: ");
-			String password = input.nextLine();
-			System.out.println("Database URL: ");
-			String url = input.nextLine();
-			Database db = new Database(username, password, url);
-			optionLoop(db);
-		} else if (csvReply.contentEquals("N")) {
-			System.out.println("Please provide login info");
-			Scanner input = new Scanner(System.in);
-			System.out.println("Username: ");
-			String username = input.nextLine();
-			System.out.println("Password: ");
-			String password = input.nextLine();
-			Database db = new Database(username, password);
-			optionLoop(db);
-		} else if (csvReply.contentEquals("X")) {
-			System.out.println("Exiting program...");
-			break;
-		} else {
-			error = "error";
-			System.out.println("Invalid Response. Please enter Y or N.");
+		String menuConfirm = "Y";
+		System.out.println("-----Welcome to the inventory database editor-----");
+		while(menuConfirm.contentEquals("Y") | menuConfirm.contentEquals("y")) {
+			System.out.println("Would you like to use a database other than the local database? (Y/N) Enter X to quit.");
+			String csvReply = input.nextLine();
+			if (csvReply.contentEquals("Y")){
+				System.out.println("Please provide login info");
+				Scanner input = new Scanner(System.in);
+				System.out.println("Username: ");
+				String username = input.nextLine();
+				System.out.println("Password: ");
+				String password = input.nextLine();
+				System.out.println("Database URL: ");
+				String url = input.nextLine();
+			} else if (csvReply.contentEquals("N")) {
+				System.out.println("Which table would you like to edit? \n"
+            			+ " 1. Inventory Table\n"
+            			+ " 2. Users Table\n"
+            			+ " 3. Orders Table");
+				int choice = input.nextInt();
+				input.nextLine();
+				switch(choice) {
+					case 1: 
+						inventoryTable();
+						System.out.println("Would you like to edit another database? (Y/N)");
+						menuConfirm = input.nextLine();
+					break;
+					
+					case 2:
+						usersTable();
+						System.out.println("Would you like to edit another database? (Y/N)");
+						menuConfirm = input.nextLine();
+						
+					break;
+					
+					case 3:
+						ordersTable();
+						System.out.println("Would you like to edit another database? (Y/N)");
+						menuConfirm = input.nextLine();
+					break;
+				}
+			}  else if (csvReply.contentEquals("X") | menuConfirm.contentEquals("N")) {
+				System.out.println("Exiting program...");
+				break;
+			} else {
+				System.out.println("Invalid Response. Please enter Y or N.");
+			}
+		}
+		if(menuConfirm.contentEquals("N") | menuConfirm.contentEquals("n")) {
+			System.out.println("Exiting..");
 		}
 	}
-	}
-	public static void optionLoop(Database db) {
+	public static void inventoryTable() {
+		System.out.println("Please provide login info");
+		Scanner input = new Scanner(System.in);
+		System.out.println("Username: ");
+		String username = input.nextLine();
+		System.out.println("Password: ");
+		String password = input.nextLine();
+		Database db = new Database(username, password);
 		String notDone = "";
 		while(notDone != "N") {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
@@ -54,6 +78,7 @@ public class Main {
 				System.out.println("[I] to insert new entry");
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
+				System.out.println("[R] to read an entry");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
@@ -80,6 +105,9 @@ public class Main {
 				} else if(editOption.contentEquals("M")) {
 					System.out.println("-----------Modify Entry-----------");
 					db.modify();
+				} else if(editOption.contentEquals("R")) {
+					System.out.println("-----------Read Entry-----------");
+					db.read();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
@@ -89,6 +117,39 @@ public class Main {
 				System.out.println("Invalid Response. Please enter Y or N.");
 				}
 			}
-			db.closeConnection(); //Cleans up out connection
+	}
+	
+	public static void usersTable() {
+		System.out.println("Would you like to: \n"+
+							"1. Create a new user \n" + 
+							"2. Find User ID");
+		int choice = input.nextInt();
+		input.nextLine();
+		switch(choice) {
+			case 1: 
+				String adminPass = "rootUser";
+				System.out.println("Please input Admin password: ");
+				String pass1 = input.nextLine();
+				if (pass1.contentEquals(adminPass)) {
+					
+				} else {
+					System.out.println("Access Denied");
+				}
+			break;
+			
+			case 2:
+				System.out.println("-----Login Info-----");
+				System.out.println("Email: ");
+				String email = input.nextLine();
+				System.out.println("Password: ");
+				String pass2 = input.nextLine();
+				
+				System.out.println("User ID: ");
+			break;
 		}
 	}
+	
+	public static void ordersTable() {
+		
+	}
+}
