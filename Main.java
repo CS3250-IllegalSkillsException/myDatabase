@@ -1,8 +1,13 @@
 import java.util.Scanner;
+import java.sql.SQLException;
+import java.util.Base64;
 
 public class Main {
-	public static void main(String[] args) {
-			menuLoop();
+	private static final Boolean True = null;
+
+	public static void main(String[] args) throws SQLException {
+		menuLoop();
+		
 	}
 	static Scanner input = new Scanner(System.in);
 
@@ -120,9 +125,16 @@ public class Main {
 	}
 	
 	public static void usersTable() {
+		System.out.println("Please provide login info");
+		Scanner input = new Scanner(System.in);
+		System.out.println("Username: ");
+		String username = input.nextLine();
+		System.out.println("Password: ");
+		String password = input.nextLine();
+		dataGovernance data = new dataGovernance(username, password);
 		System.out.println("Would you like to: \n"+
 							"1. Create a new user \n" + 
-							"2. Find User ID");
+							"2. Find User Email");
 		int choice = input.nextInt();
 		input.nextLine();
 		switch(choice) {
@@ -131,25 +143,62 @@ public class Main {
 				System.out.println("Please input Admin password: ");
 				String pass1 = input.nextLine();
 				if (pass1.contentEquals(adminPass)) {
+					System.out.println("-----New User-----");
+					System.out.println("User ID: ");
+					String newID = input.nextLine();
+					System.out.println("Enter Email: ");
+					String newEmail = input.nextLine();
+					int email = newEmail.hashCode();
+					System.out.println("Enter Password: ");
+					String newPass = input.nextLine();
+					int pass = newPass.hashCode();
+					data.insertUser(newID, email, pass);
+					//data.userExist(newID, adminPass, email, pass);
+					System.out.println("New Hashed Values");
+					System.out.println("Hashed Email" + email);
+					System.out.println("Hashed Password" + pass);
 					
+					//print hashed password
 				} else {
-					System.out.println("Access Denied");
+					System.out.println("-----Access Denied-----");
+					System.out.println("Request Sign-Up");
+					System.out.println("Enter Email: ");
+					String reqEmail = input.nextLine();
+					System.out.println("Enter Password: ");
+					String reqPass = input.nextLine();
 				}
 			break;
 			
 			case 2:
 				System.out.println("-----Login Info-----");
 				System.out.println("Email: ");
-				String email = input.nextLine();
+				String logEmail = input.nextLine();
+				int hashE = logEmail.hashCode();
 				System.out.println("Password: ");
-				String pass2 = input.nextLine();
-				
-				System.out.println("User ID: ");
+				String logPass = input.nextLine();
+				int hashP = logPass.hashCode();
+				//read must have find option
+				if(data.userExists(logEmail)) {
+					if(data.readPass(hashP)) {
+						System.out.println("Hashed Email: " + hashE);
+						
+					} else { 
+						System.out.println("Please Login or Sign-Up");
+				}
+			}
 			break;
 		}
 	}
 	
 	public static void ordersTable() {
+		System.out.println("Please provide login info");
+		Scanner input = new Scanner(System.in);
+		System.out.println("Username: ");
+		String username = input.nextLine();
+		System.out.println("Password: ");
+		String password = input.nextLine();
+		Database db = new Database(username, password);
 		
 	}
 }
+
