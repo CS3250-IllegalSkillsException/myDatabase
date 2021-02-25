@@ -55,6 +55,7 @@ public class Main {
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
 				System.out.println("[R] to read an entry");
+				System.out.println("[S] to simulate customer orders");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
@@ -84,6 +85,9 @@ public class Main {
 				} else if(editOption.contentEquals("R")) {
 					System.out.println("-----------Read Entry-----------");
 					db.read();
+				} else if(editOption.contentEquals("S")) {
+					System.out.println("-----------Simulating orders-----------");
+					db.importCustomerData();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
