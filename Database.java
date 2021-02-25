@@ -8,6 +8,7 @@ public class Database {
     private String username;
     private String password;
     private String csvFilePath = "inventory_team5.csv";
+    private String customerOrderCsv = "customer_orders_team3.csv";
     private Connection connection;
 
         public Database(String user, String pass){
@@ -56,6 +57,11 @@ public class Database {
             return csvFilePath;
         }
 
+        public void setCustomerOrderCsv(String filepath) { customerOrderCsv = filepath; }
+
+        public String getCustomerOrderCsv() { return customerOrderCsv; }
+
+
         public void closeConnection(){
             try{
                 connection.close();
@@ -85,6 +91,72 @@ public class Database {
             }
             return true;
         }
+
+    private int getNumEntries() {
+        try{
+            String sql3 = "SELECT COUNT(*) FROM orders";
+            PreparedStatement statement3 = connection.prepareStatement(sql3);
+            ResultSet numRows = statement3.executeQuery();
+            numRows.next();
+            return numRows.getInt("COUNT(*)");
+        } catch (SQLException e){
+            e.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+        }
+        return -100;
+    }
+
+    public void importCustomerData() {
+        try {
+            BufferedReader lineReader = new BufferedReader(new FileReader(customerOrderCsv));
+            String lineText = null;
+            lineReader.readLine(); // skip header line
+            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            String sql2 = "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?";
+            PreparedStatement statement2 = connection.prepareStatement(sql2);
+            int orderId = getNumEntries() + 1;
+            int count = 0;
+            while ((lineText = lineReader.readLine()) != null) {
+                statement.setInt(1, orderId);
+                String[] data = lineText.split(",");
+                statement.setString(2, data[0]);
+                statement.setString(3, data[1]);
+                statement.setString(4, data[2]);
+                statement.setString(5, data[3]);
+                statement.setString(6, data[4]);
+                statement2.setInt(1, Integer.parseInt(data[4]));
+                statement2.setString(2, data[3]);
+                statement.addBatch();
+                statement2.addBatch();
+                if (count >= 20) {
+                    statement.executeBatch();
+                    statement2.executeBatch();
+                    count = 0;
+                }
+                count++;
+                orderId++;
+            }
+            lineReader.close();
+            // execute the remaining queries
+            statement.executeBatch();
+            statement2.executeBatch();
+            connection.commit();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
         public void importFromCsvFile() {
             try {
