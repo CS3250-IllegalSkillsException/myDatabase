@@ -120,13 +120,10 @@ public class Database {
             String sql2 = "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?";
             PreparedStatement statement2 = connection.prepareStatement(sql2);
             int orderId = getNumEntries() + 1;
-            System.out.println("OrderID: " + orderId);
             int count = 0;
             while ((lineText = lineReader.readLine()) != null) {
-                System.out.println("Inserting into Orders: " + orderId);
                 statement.setInt(1, orderId);
                 String[] data = lineText.split(",");
-                System.out.println(data[0] + data[1] + data[2] + data[3]);
                 statement.setString(2, data[0]);
                 statement.setString(3, data[1]);
                 statement.setString(4, data[2]);
@@ -137,7 +134,6 @@ public class Database {
                 statement.addBatch();
                 statement2.addBatch();
                 if (count >= 20) {
-                    System.out.println("Executing batch");
                     statement.executeBatch();
                     statement2.executeBatch();
                     count = 0;

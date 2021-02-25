@@ -88,6 +88,7 @@ public class Main {
 				} else if(editOption.contentEquals("S")) {
 					System.out.println("-----------Simulating orders-----------");
 					db.importCustomerData();
+					System.out.println("-----------Complete!-----------");
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
