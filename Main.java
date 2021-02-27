@@ -56,6 +56,8 @@ public class Main {
 				System.out.println("[M] to modify an entry");
 				System.out.println("[R] to read an entry");
 				System.out.println("[S] to simulate customer orders");
+				System.out.println("[IO] to insert new customer order");
+				System.out.println("[DO] to delete a customer order");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
@@ -89,6 +91,22 @@ public class Main {
 					System.out.println("-----------Simulating orders-----------");
 					db.importCustomerData();
 					System.out.println("-----------Complete!-----------");
+				} else if(editOption.contentEquals("IO")) {
+					System.out.println("-----------New Entry-----------");
+					System.out.println("Customer email: ");
+					String cust_email = input.nextLine();
+					System.out.println("Customer location: ");
+					String cust_location = input.nextLine();
+					System.out.println("Product ID: ");
+					String product_id = input.nextLine();
+					System.out.println("Quantity: ");
+					String quantity = input.nextLine();
+					db.insertOrders(cust_email, cust_location, product_id, quantity);
+				} else if(editOption.contentEquals("DO")) {
+					System.out.println("-----------Delete Entry-----------");
+					System.out.println("Order ID: ");
+					String order_id = input.nextLine();
+					db.deleteOrders(order_id);
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}

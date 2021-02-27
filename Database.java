@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.time.LocalDate;
 public class Database {
     private String jdbcURL = "jdbc:mysql://localhost:3306/test";
     private String username;
@@ -278,6 +279,33 @@ public class Database {
             }
         }
     }
+
+    public void insertOrders(String cust_email, String cust_location, String product_id, String product_quantity) {
+        try {
+            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            int orderID = getNumEntries() + 1;
+            String date = LocalDate.now().toString();
+            statement.setInt(1, orderID);
+            statement.setString(2, date);
+            statement.setString(3, cust_email);
+            statement.setString(4, cust_location);
+            statement.setString(5, product_id);
+            statement.setString(6, product_quantity);
+            // execute the remaining queries
+            statement.addBatch();
+            statement.executeBatch();
+            connection.commit();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     
     public void modify() {
         PreparedStatement preparedStatement;
@@ -369,9 +397,34 @@ public class Database {
             statement.setString(1,id);
             statement.addBatch();
             statement.executeBatch();
-            //preparedStatement.executeUpdate();
             System.out.println("Deleting Product ID: " + id);
             connection.commit();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void deleteOrders(String id){
+        try{
+            PreparedStatement sqlCheck = connection.prepareStatement("SELECT * FROM orders WHERE order_id = ?");
+            sqlCheck.setString(1,id);
+            ResultSet exists = sqlCheck.executeQuery();
+            if(exists.next()){
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE order_id = ?");
+                statement.setString(1,id);
+                statement.addBatch();
+                statement.executeBatch();
+                System.out.println("Deleting Order ID: " + id);
+                connection.commit();
+            }
+            else{
+                System.out.println("The ID you entered doesn't exist.");
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
