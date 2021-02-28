@@ -259,7 +259,5 @@ public class Main {
 					System.out.println("Invalid Response. Please enter Y or N.");
 					}
 				}
-		
 	}
 }
-
