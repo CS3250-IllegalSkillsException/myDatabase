@@ -215,6 +215,49 @@ public class Main {
 		System.out.println("Password: ");
 		String password = input.nextLine();
 		Database db = new Database(username, password);
-		
+		String notDone = "";
+		while(notDone != "N") {
+		System.out.println("Would you like to edit your CSV file? (Y/N)");
+		String editReply = input.nextLine();
+			if (editReply.contentEquals("Y")) {
+				notDone = "";
+				System.out.println("Please enter one of the following options.");
+				System.out.println("[S] to import customer orders from csv");
+				System.out.println("[I] to insert new customer order");
+				System.out.println("[D] to delete a customer order");
+				String editOption = input.nextLine();
+				if(editOption.contentEquals("S")) {
+					System.out.println("-----------Importing orders-----------");
+					db.importCustomerData();
+					System.out.println("-----------Complete!-----------");
+				} else if(editOption.contentEquals("I")) {
+					System.out.println("-----------New Entry-----------");
+					System.out.println("Customer email: ");
+					String cust_email = input.nextLine();
+					System.out.println("Customer location: ");
+					String cust_location = input.nextLine();
+					System.out.println("Product ID: ");
+					String product_id = input.nextLine();
+					System.out.println("Quantity: ");
+					String quantity = input.nextLine();
+					while(Integer.parseInt(quantity) <= 0){
+						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
+						quantity = input.nextLine();
+					}
+					db.insertOrders(cust_email, cust_location, product_id, quantity);
+				} else if(editOption.contentEquals("D")) {
+					System.out.println("-----------Delete Entry-----------");
+					System.out.println("Order ID: ");
+					String order_id = input.nextLine();
+					db.deleteOrders(order_id);
+				} else {
+					System.out.println("Invalid Response. Please enter a valid option.");
+					}
+			} else if (editReply.contentEquals("N")) {
+				notDone = "N";
+			} else {
+					System.out.println("Invalid Response. Please enter Y or N.");
+					}
+				}
 	}
 }
