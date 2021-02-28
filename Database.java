@@ -3,185 +3,263 @@ import java.sql.*;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 public class Database {
     private String jdbcURL = "jdbc:mysql://localhost:3306/test";
     private String username;
     private String password;
     private String csvFilePath = "inventory_team5.csv";
+    private String customerOrderCsv = "customer_orders_team3.csv";
     private Connection connection;
 
-        public Database(String user, String pass){
-            username = user;
-            password = pass;
-            initializeConnection();
-        }
+    public Database(String user, String pass) {
+        username = user;
+        password = pass;
+        initializeConnection();
+    }
 
-        //non-default constructor for cases where we are accessing a different database.
-        public Database(String user, String pass, String url){
-            username = user;
-            password = pass;
-            jdbcURL = url;
-            initializeConnection();
-        }
+    //non-default constructor for cases where we are accessing a different database.
+    public Database(String user, String pass, String url) {
+        username = user;
+        password = pass;
+        jdbcURL = url;
+        initializeConnection();
+    }
 
-        public void setUsername(String user){
-            username = user;
-        }
+    public void setUsername(String user) {
+        username = user;
+    }
 
-        public String getUsername(){
-            return username;
-        }
+    public String getUsername() {
+        return username;
+    }
 
-        public void setPassword(String pass){
-            password = pass;
-        }
+    public void setPassword(String pass) {
+        password = pass;
+    }
 
-        public String getPassword(){
-            return password;
-        }
+    public String getPassword() {
+        return password;
+    }
 
-        public void setJdbcUrl(String url){
-            jdbcURL = url;
-        }
+    public void setJdbcUrl(String url) {
+        jdbcURL = url;
+    }
 
-        public String getJdbcUrl(){
-            return jdbcURL;
-        }
+    public String getJdbcUrl() {
+        return jdbcURL;
+    }
 
-        public void setCsvFilePath(String filepath){
-            csvFilePath = filepath;
-        }
+    public void setCsvFilePath(String filepath) {
+        csvFilePath = filepath;
+    }
 
-        public String getCsvFilePath(){
-            return csvFilePath;
-        }
+    public String getCsvFilePath() {
+        return csvFilePath;
+    }
 
-        public void closeConnection(){
-            try{
-                connection.close();
+    public void setCustomerOrderCsv(String filepath) {
+        customerOrderCsv = filepath;
+    }
+
+    public String getCustomerOrderCsv() {
+        return customerOrderCsv;
+    }
+
+
+    public void closeConnection() {
+        try {
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //attempts to connect to the SQL database. Returns true if successful, false if unsuccessful.
+    public boolean initializeConnection() {
+        try {
+            connection = DriverManager.getConnection(jdbcURL, username, password);
+            connection.setAutoCommit(false);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private int getNumEntries() {
+        try {
+            String sql3 = "SELECT COUNT(*) FROM orders";
+            PreparedStatement statement3 = connection.prepareStatement(sql3);
+            ResultSet numRows = statement3.executeQuery();
+            numRows.next();
+            return numRows.getInt("COUNT(*)");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
             }
         }
+        return -100;
+    }
 
-        //attempts to connect to the SQL database. Returns true if successful, false if unsuccessful.
-        public boolean initializeConnection(){
-            try {
-                connection = DriverManager.getConnection(jdbcURL, username, password);
-                connection.setAutoCommit(false);
-            } catch (SQLException ex){
-                ex.printStackTrace();
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+    public void importCustomerData() {
+        try {
+            BufferedReader lineReader = new BufferedReader(new FileReader(customerOrderCsv));
+            String lineText = null;
+            lineReader.readLine(); // skip header line
+            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            String sql2 = "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?";
+            PreparedStatement statement2 = connection.prepareStatement(sql2);
+            int orderId = getNumEntries() + 1;
+            int count = 0;
+            while ((lineText = lineReader.readLine()) != null) {
+                statement.setInt(1, orderId);
+                String[] data = lineText.split(",");
+                statement.setString(2, data[0]);
+                statement.setString(3, data[1]);
+                statement.setString(4, data[2]);
+                statement.setString(5, data[3]);
+                statement.setString(6, data[4]);
+                statement2.setInt(1, Integer.parseInt(data[4]));
+                statement2.setString(2, data[3]);
+                statement.addBatch();
+                statement2.addBatch();
+                if (count >= 20) {
+                    statement.executeBatch();
+                    statement2.executeBatch();
+                    count = 0;
                 }
-                return false;
+                count++;
+                orderId++;
             }
-            return true;
-        }
-
-        public void importFromCsvFile() {
+            lineReader.close();
+            // execute the remaining queries
+            statement.executeBatch();
+            statement2.executeBatch();
+            connection.commit();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
             try {
-                BufferedReader lineReader = new BufferedReader(new FileReader(csvFilePath));
-                String lineText = null;
-                lineReader.readLine(); // skip header line
-                String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement statement = connection.prepareStatement(sql);
-                int count = 0;
-                while ((lineText = lineReader.readLine()) != null) {
-                    String[] data = lineText.split(",");
-                    statement.setString(1, data[0]);
-                    statement.setString(2, data[1]);
-                    statement.setString(3, data[2]);
-                    statement.setString(4, data[3]);
-                    statement.setString(5, data[4]);
-                    statement.addBatch();
-                    if (count >= 20) {
-                        statement.executeBatch();
-                        count = 0;
-                    }
-                    count++;
-                }
-                lineReader.close();
-                // execute the remaining queries
-                statement.executeBatch();
-                connection.commit();
-            } catch (IOException ex) {
-                System.err.println(ex);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
+    }
 
-        public void read() {
-        	PreparedStatement preparedStatement;
-            Scanner scanner = new Scanner(System.in);
+    public void importFromCsvFile() {
+        try {
+            BufferedReader lineReader = new BufferedReader(new FileReader(csvFilePath));
+            String lineText = null;
+            lineReader.readLine(); // skip header line
+            String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            int count = 0;
+            while ((lineText = lineReader.readLine()) != null) {
+                String[] data = lineText.split(",");
+                statement.setString(1, data[0]);
+                statement.setString(2, data[1]);
+                statement.setString(3, data[2]);
+                statement.setString(4, data[3]);
+                statement.setString(5, data[4]);
+                statement.addBatch();
+                if (count >= 20) {
+                    statement.executeBatch();
+                    count = 0;
+                }
+                count++;
+            }
+            lineReader.close();
+            // execute the remaining queries
+            statement.executeBatch();
+            connection.commit();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
             try {
-                String loop;
-                do {
-                	System.out.println("Enter which ID to read: \n"
-                			+ " 1.Product ID \n"
-                			+ " 2.Supplier ID");
-                    int id = scanner.nextInt();
-                    switch (id) {
-                        case 1:
-                        	System.out.println("Enter Product ID: ");
-                        	String prod_id = scanner.next();
-                        	String sql1 = "SELECT product_id,  quantity, wholesale_cost, "
-                        			+ "sale_price, supplier_id FROM inventory "
-                        			+ "WHERE product_id= '" + prod_id + "'";
-                        	PreparedStatement statement1 = connection.prepareStatement(sql1);
-                        	ResultSet set1 = statement1.executeQuery(sql1);
-                        	while (set1.next()) {
-                        		String product_id = set1.getString("product_id");
-                        		int quantity = set1.getInt("quantity");
-                        		int wholesale_cost = set1.getInt("wholesale_cost");
-                        		int sale_price = set1.getInt("sale_price");
-                        		String supplier_id = set1.getString("supplier_id"); 
-                        		System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
-                        		System.out.format("%s, %s, %s, %s, %s\n", product_id,  quantity, wholesale_cost, sale_price, supplier_id);
-                        	}
-                        	
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void read() {
+        PreparedStatement preparedStatement;
+        Scanner scanner = new Scanner(System.in);
+        try {
+            String loop;
+            do {
+                System.out.println("Enter which ID to read: \n"
+                        + " 1.Product ID \n"
+                        + " 2.Supplier ID");
+                int id = scanner.nextInt();
+                switch (id) {
+                    case 1:
+                        System.out.println("Enter Product ID: ");
+                        String prod_id = scanner.next();
+                        String sql1 = "SELECT product_id,  quantity, wholesale_cost, "
+                                + "sale_price, supplier_id FROM inventory "
+                                + "WHERE product_id= '" + prod_id + "'";
+                        System.out.println(sql1);
+                        PreparedStatement statement1 = connection.prepareStatement(sql1);
+                        ResultSet set1 = statement1.executeQuery(sql1);
+                        while (set1.next()) {
+                            String product_id = set1.getString("product_id");
+                            int quantity = set1.getInt("quantity");
+                            int wholesale_cost = set1.getInt("wholesale_cost");
+                            int sale_price = set1.getInt("sale_price");
+                            String supplier_id = set1.getString("supplier_id");
+                            System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
+                            System.out.format("%s, %s, %s, %s, %s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
+                        }
+
                         break;
-                        case 2:
-                        	System.out.println("Enter Supplier ID: ");
-                        	String supp_id = scanner.next();
-                        	String sql2 = "SELECT product_id,  quantity, wholesale_cost, "
-                        			+ "sale_price, supplier_id FROM inventory "
-                        			+ "WHERE supplier_id= '" + supp_id + "'";
-                        	PreparedStatement statement2 = connection.prepareStatement(sql2);
-                        	ResultSet set2 = statement2.executeQuery(sql2);
-                        	while (set2.next()) {
-                        		String product_id = set2.getString("product_id");
-                        		int quantity = set2.getInt("quantity");
-                        		int wholesale_cost = set2.getInt("wholesale_cost");
-                        		int sale_price = set2.getInt("sale_price");
-                        		String supplier_id = set2.getString("supplier_id"); 
-                        		System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
-                        		System.out.format("%s, %s, %s, %s, %s\n", product_id,  quantity, wholesale_cost, sale_price, supplier_id);
-                        	}
+                    case 2:
+                        System.out.println("Enter Supplier ID: ");
+                        String supp_id = scanner.next();
+                        String sql2 = "SELECT product_id,  quantity, wholesale_cost, "
+                                + "sale_price, supplier_id FROM inventory "
+                                + "WHERE supplier_id= '" + supp_id + "'";
+                        PreparedStatement statement2 = connection.prepareStatement(sql2);
+                        ResultSet set2 = statement2.executeQuery(sql2);
+                        while (set2.next()) {
+                            String product_id = set2.getString("product_id");
+                            int quantity = set2.getInt("quantity");
+                            int wholesale_cost = set2.getInt("wholesale_cost");
+                            int sale_price = set2.getInt("sale_price");
+                            String supplier_id = set2.getString("supplier_id");
+                            System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
+                            System.out.format("%s, %s, %s, %s, %s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
+                        }
                         break;
-                    }
-                    System.out.println("\nWould you like to read another ID? Y/N");
-                    loop = scanner.next();
                 }
-                while (!loop.equals("N") && !loop.equals("n"));
-                connection.commit();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("\nWould you like to read another ID? Y/N");
+                loop = scanner.next();
             }
+            while (!loop.equals("N") && !loop.equals("n"));
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void insert(String product_id, String quantity, String wholesale_cost, String sale_price, String supplier_id) {
         try {
@@ -206,7 +284,7 @@ public class Database {
             }
         }
     }
-    
+
     public void modify() {
         PreparedStatement preparedStatement;
         Scanner scanner = new Scanner(System.in);
@@ -290,11 +368,323 @@ public class Database {
             e.printStackTrace();
         }
     }
-    
-    public void delete(String id){
-        try{
+
+    public void search() {
+
+
+        Scanner searchFilter = new Scanner(System.in);
+        System.out.println("Would you like to search the Inventory or the Customer Orders? \n 1. Inventory \n 2. Customer Orders");
+        int tableChoice = searchFilter.nextInt();
+        switch (tableChoice) {
+            case 1:
+                // inventory submenu
+                int menuOption;
+                String option = "Y";
+                System.out.println("This menu will let you add and apply a filter before displaying matching database entries. \nSet a filter to generate results. ");
+                do {
+                    String searchSuppID = null;
+                    String searchProdID = null;
+                    String searchQuantity = null;
+                    String searchWSCost = null;
+                    String searchSalePrice = null;
+                    do {
+                        System.out.println("\nWhich filter would you like to set? \n" +
+                                "1. Product ID \n" +
+                                "2. Supplier ID \n" +
+                                "3. Quantity \n" +
+                                "4. Wholesale Cost \n" +
+                                "5. Sale Price");
+
+                        menuOption = searchFilter.nextInt();
+
+                        switch (menuOption) {
+                            case 1:
+                                System.out.println("Enter product ID or type X to cancel: ");
+                                searchProdID = searchFilter.next();
+                                if (searchProdID.matches("X")) {
+                                    searchProdID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Product ID filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 2:
+                                System.out.println("Enter Supplier ID or type X to cancel: ");
+                                searchSuppID = searchFilter.next();
+                                if (searchSuppID.matches("X")) {
+                                    searchSuppID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Supplier ID filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 3:
+                                System.out.println("Enter quantity or type X to cancel: ");
+                                searchQuantity = searchFilter.next();
+                                if (searchQuantity.matches("X")) {
+                                    searchQuantity = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Quantity filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 4:
+                                System.out.println("Enter wholesale cost ($$.$$) or type X to cancel: ");
+                                searchWSCost = searchFilter.next();
+                                if (searchWSCost.matches("X")) {
+                                    searchWSCost = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Wholesale cost filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 5:
+                                System.out.println("Enter sale price ($$.$$) or type X to cancel: ");
+                                searchSalePrice = searchFilter.next();
+                                if (searchSalePrice.matches("X")) {
+                                    searchSalePrice = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Sale price filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+                            default:
+                                System.out.println("Invalid option");
+                                break;
+                        }
+                    } while (option == "Y");
+
+
+                    // Building the sql query string with added filter
+                    System.out.println("Generating results... ");
+
+                    try {
+                        String sqlQuery = "SELECT product_id, quantity, wholesale_cost, sale_price, supplier_id FROM inventory WHERE";
+
+                        if (searchProdID != null) {
+                            sqlQuery += " product_id = '" + searchProdID + "'";
+                        } else if (searchQuantity != null) {
+                            sqlQuery += " quantity = '" + searchQuantity + "'";
+                        } else if (searchWSCost != null) {
+                            sqlQuery += " wholesale_cost = '" + searchWSCost + "'";
+                        } else if (searchSalePrice != null) {
+                            sqlQuery += " sale_price = '" + searchSalePrice + "'";
+                        } else if (searchSuppID != null) {
+                            sqlQuery += " supplier_id = '" + searchSuppID + "'";
+                        }
+
+                        PreparedStatement statement = connection.prepareStatement(sqlQuery);
+
+
+                        // for checking SQL query syntax
+                        // System.out.println(sqlQuery + "\n");
+
+                        // Display results from database
+                        ResultSet results = statement.executeQuery(sqlQuery);
+
+                        System.out.println("-----------------------------------------------------------------------------");
+                        System.out.printf("%-18s%-13s%-18s%-15s%-15s\n", "Product ID", "Quantity", "Wholesale Cost", "Sale Price", "Supplier ID");
+                        System.out.println("-----------------------------------------------------------------------------");
+
+                        while (results.next()) {
+                            String product_id = results.getString("product_id");
+                            int quantity = results.getInt("quantity");
+                            int wholesale_cost = results.getInt("wholesale_cost");
+                            int sale_price = results.getInt("sale_price");
+                            String supplier_id = results.getString("supplier_id");
+                            System.out.printf("%-18s%-13s%-18s%-15s%-15s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
+
+                        }
+
+                    } catch (SQLException e) {
+                        System.out.println("Error generating results: ");
+                        e.printStackTrace();
+                    }
+
+
+                    System.out.println("--------------------------- End of Results ----------------------------------");
+                    System.out.println("\n");
+                    System.out.println("Would you like to search again with a new filter? Y/N");
+                    option = searchFilter.next();
+                } while (option.equals("Y"));
+                System.out.println("Exiting");
+                break;
+
+
+            case 2:
+                // customer orders submenu
+                int coMenuOption;
+                String option2 = "Y";
+                System.out.println("This menu will let you add and apply a filter before displaying matching database entries. \nSet a filter to generate results. ");
+                do {
+                    String searchCustDate = null;
+                    String searchCustEmail = null;
+                    String searchCustLoc = null;
+                    String searchCustPID = null;
+                    String searchCustQuant = null;
+                    do {
+                        System.out.println("\nWhich filter would you like to set? \n" +
+                                "1. Date \n" +
+                                "2. Email address \n" +
+                                "3. Zip Code \n" +
+                                "4. Product ID \n" +
+                                "5. Quantity");
+
+                        coMenuOption = searchFilter.nextInt();
+
+
+                        switch (coMenuOption) {
+                            case 1:
+                                System.out.println("Enter date in form 'YYYY-MM-DD' or type X to cancel: ");
+                                searchCustDate = searchFilter.next();
+                                if (searchCustDate.matches("X")) {
+                                    searchCustDate = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Date filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 2:
+                                System.out.println("Enter full customer email address or type X to cancel: ");
+                                searchCustEmail = searchFilter.next();
+                                if (searchCustEmail.matches("X")) {
+                                    searchCustEmail = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Customer email address filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 3:
+                                System.out.println("Enter customer zip code or type X to cancel: ");
+                                searchCustLoc = searchFilter.next();
+                                if (searchCustLoc.matches("X")) {
+                                    searchCustLoc = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Customer zip code filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 4:
+                                System.out.println("Enter Product ID or type X to cancel: ");
+                                searchCustPID = searchFilter.next();
+                                if (searchCustPID.matches("X")) {
+                                    searchCustPID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Product ID filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 5:
+                                System.out.println("Enter quantity purchased or type X to cancel: ");
+                                searchCustQuant = searchFilter.next();
+                                if (searchCustQuant.matches("X")) {
+                                    searchCustQuant = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Quantity filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+                            default:
+                                System.out.println("Invalid option");
+                                break;
+                        }
+                    } while (option2 == "Y");
+
+
+                    // Building the sql query string with added filter
+
+                    try {
+                        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE";
+
+                        if (searchCustDate != null) {
+                            sqlQuery2 += " date = '" + searchCustDate + "'";
+                        } else if (searchCustEmail != null) {
+                            sqlQuery2 += " cust_email = '" + searchCustEmail + "'";
+                        } else if (searchCustLoc != null) {
+                            sqlQuery2 += " cust_location = '" + searchCustLoc + "'";
+                        } else if (searchCustPID != null) {
+                            sqlQuery2 += " product_id = '" + searchCustPID + "'";
+                        } else if (searchCustQuant != null) {
+                            sqlQuery2 += " product_quantity = '" + searchCustQuant + "'";
+                        }
+
+                        PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
+
+
+                        // for checking SQL query syntax
+                        // System.out.println(sqlQuery + "\n");
+
+                        // Display results from database
+                        ResultSet results2 = statement2.executeQuery(sqlQuery2);
+
+                        System.out.println("-----------------------------------------------------------------------------------------------");
+                        System.out.printf("%-15s%-20s%-15s%-18s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Product Quantity");
+                        System.out.println("-----------------------------------------------------------------------------------------------");
+
+                        while (results2.next()) {
+                            String date = results2.getString("date");
+                            String cust_email = results2.getString("cust_email");
+                            int cust_location = results2.getInt("cust_location");
+                            String product_id = results2.getString("product_id");
+                            int product_quantity = results2.getInt("product_quantity");
+                            System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
+
+                        }
+
+                    } catch (SQLException e) {
+                        System.out.println("Error generating results: ");
+                        e.printStackTrace();
+                    }
+
+
+                    System.out.println("-------------------------------- End of Results ------------------------------------------");
+                    System.out.println("\n");
+                    System.out.println("Would you like to search again with a new filter? Y/N");
+                    option = searchFilter.next();
+                } while (option.equals("Y"));
+                System.out.println("Exiting");
+                break;
+        }
+
+    }
+
+    public void delete(String id) {
+        try {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");
-            statement.setString(1,id);
+            statement.setString(1, id);
             statement.addBatch();
             statement.executeBatch();
             //preparedStatement.executeUpdate();
