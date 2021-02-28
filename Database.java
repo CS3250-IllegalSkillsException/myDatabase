@@ -503,8 +503,8 @@ public class Database {
                         while (results.next()) {
                             String product_id = results.getString("product_id");
                             int quantity = results.getInt("quantity");
-                            int wholesale_cost = results.getInt("wholesale_cost");
-                            int sale_price = results.getInt("sale_price");
+                            double wholesale_cost = results.getDouble("wholesale_cost");
+                            double sale_price = results.getDouble("sale_price");
                             String supplier_id = results.getString("supplier_id");
                             System.out.printf("%-18s%-13s%-18s%-15s%-15s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
 
