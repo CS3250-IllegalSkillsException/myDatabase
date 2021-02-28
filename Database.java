@@ -305,6 +305,7 @@ public class Database {
                     statement2.setString(2, product_id);
                     // execute the remaining queries
                     statement.addBatch();
+                    statement2.addBatch();
                     statement.executeBatch();
                     statement2.executeBatch();
                     connection.commit();
