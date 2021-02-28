@@ -411,6 +411,7 @@ public class Database {
 
     public void deleteOrders(String id){
         try{
+            //Run query to see if order exists
             PreparedStatement sqlCheck = connection.prepareStatement("SELECT * FROM orders WHERE order_id = ?");
             sqlCheck.setString(1,id);
             ResultSet exists = sqlCheck.executeQuery();
@@ -423,7 +424,7 @@ public class Database {
                 connection.commit();
             }
             else{
-                System.out.println("The ID you entered doesn't exist.");
+                System.out.println("The order ID you entered doesn't exist.");
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
