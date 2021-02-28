@@ -240,6 +240,10 @@ public class Main {
 					String product_id = input.nextLine();
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
+					while(Integer.parseInt(quantity) <= 0){
+						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
+						quantity = input.nextLine();
+					}
 					db.insertOrders(cust_email, cust_location, product_id, quantity);
 				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");

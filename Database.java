@@ -282,21 +282,38 @@ public class Database {
 
     public void insertOrders(String cust_email, String cust_location, String product_id, String product_quantity) {
         try {
-            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            int orderID = getNumEntries() + 1;
-            String date = LocalDate.now().toString();
-            statement.setInt(1, orderID);
-            statement.setString(2, date);
-            statement.setString(3, cust_email);
-            statement.setString(4, cust_location);
-            statement.setString(5, product_id);
-            statement.setString(6, product_quantity);
-            // execute the remaining queries
-            statement.addBatch();
-            statement.executeBatch();
-            connection.commit();
-
+            PreparedStatement productCheck = connection.prepareStatement("SELECT * FROM inventory WHERE product_id = ?");
+            productCheck.setString(1,product_id);
+            ResultSet product = productCheck.executeQuery();
+            if(product.next()){
+                int quantity = Integer.parseInt(product.getString("quantity"));
+                String updateQ = String.valueOf(quantity - Integer.parseInt(product_quantity));
+                if(Integer.parseInt(product_quantity) <= quantity){
+                    String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+                    PreparedStatement statement = connection.prepareStatement(sql);
+                    String sql2 = "UPDATE inventory SET quantity = ? WHERE product_id = ?";
+                    PreparedStatement statement2 = connection.prepareStatement(sql2);
+                    int orderID = getNumEntries() + 1;
+                    String date = LocalDate.now().toString();
+                    statement.setInt(1, orderID);
+                    statement.setString(2, date);
+                    statement.setString(3, cust_email);
+                    statement.setString(4, cust_location);
+                    statement.setString(5, product_id);
+                    statement.setString(6, product_quantity);
+                    statement2.setString(1, updateQ);
+                    statement2.setString(2, product_id);
+                    // execute the remaining queries
+                    statement.addBatch();
+                    statement.executeBatch();
+                    statement2.executeBatch();
+                    connection.commit();
+                } else {
+                    System.out.println("Not enough in inventory. Please lower your order volume or try again later.");
+                }
+            } else{
+                System.out.println("The product ID you entered has not been found.");
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
