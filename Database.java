@@ -409,6 +409,319 @@ public class Database {
         }
     }
     
+  
+    public void search() {
+
+
+        Scanner searchFilter = new Scanner(System.in);
+        System.out.println("Would you like to search the Inventory or the Customer Orders? \n 1. Inventory \n 2. Customer Orders");
+        int tableChoice = searchFilter.nextInt();
+        switch (tableChoice) {
+            case 1:
+                // inventory submenu
+                int menuOption;
+                String option = "Y";
+                System.out.println("This menu will let you add and apply a filter before displaying matching database entries. \nSet a filter to generate results. ");
+                do {
+                    String searchSuppID = null;
+                    String searchProdID = null;
+                    String searchQuantity = null;
+                    String searchWSCost = null;
+                    String searchSalePrice = null;
+                    do {
+                        System.out.println("\nWhich filter would you like to set? \n" +
+                                "1. Product ID \n" +
+                                "2. Supplier ID \n" +
+                                "3. Quantity \n" +
+                                "4. Wholesale Cost \n" +
+                                "5. Sale Price");
+
+                        menuOption = searchFilter.nextInt();
+
+                        switch (menuOption) {
+                            case 1:
+                                System.out.println("Enter product ID or type X to cancel: ");
+                                searchProdID = searchFilter.next();
+                                if (searchProdID.matches("X")) {
+                                    searchProdID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Product ID filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 2:
+                                System.out.println("Enter Supplier ID or type X to cancel: ");
+                                searchSuppID = searchFilter.next();
+                                if (searchSuppID.matches("X")) {
+                                    searchSuppID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Supplier ID filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 3:
+                                System.out.println("Enter quantity or type X to cancel: ");
+                                searchQuantity = searchFilter.next();
+                                if (searchQuantity.matches("X")) {
+                                    searchQuantity = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Quantity filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 4:
+                                System.out.println("Enter wholesale cost ($$.$$) or type X to cancel: ");
+                                searchWSCost = searchFilter.next();
+                                if (searchWSCost.matches("X")) {
+                                    searchWSCost = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Wholesale cost filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+
+                            case 5:
+                                System.out.println("Enter sale price ($$.$$) or type X to cancel: ");
+                                searchSalePrice = searchFilter.next();
+                                if (searchSalePrice.matches("X")) {
+                                    searchSalePrice = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Sale price filter set.");
+                                    option = "N";
+                                }
+                                break;
+
+                            default:
+                                System.out.println("Invalid option");
+                                break;
+                        }
+                    } while (option == "Y");
+
+
+                    // Building the sql query string with added filter
+                    System.out.println("Generating results... ");
+
+                    try {
+                        String sqlQuery = "SELECT product_id, quantity, wholesale_cost, sale_price, supplier_id FROM inventory WHERE";
+
+                        if (searchProdID != null) {
+                            sqlQuery += " product_id = '" + searchProdID + "'";
+                        } else if (searchQuantity != null) {
+                            sqlQuery += " quantity = '" + searchQuantity + "'";
+                        } else if (searchWSCost != null) {
+                            sqlQuery += " wholesale_cost = '" + searchWSCost + "'";
+                        } else if (searchSalePrice != null) {
+                            sqlQuery += " sale_price = '" + searchSalePrice + "'";
+                        } else if (searchSuppID != null) {
+                            sqlQuery += " supplier_id = '" + searchSuppID + "'";
+                        }
+
+                        PreparedStatement statement = connection.prepareStatement(sqlQuery);
+
+
+                        // for checking SQL query syntax
+                        // System.out.println(sqlQuery + "\n");
+
+                        // Display results from database
+                        ResultSet results = statement.executeQuery(sqlQuery);
+
+                        System.out.println("-----------------------------------------------------------------------------");
+                        System.out.printf("%-18s%-13s%-18s%-15s%-15s\n", "Product ID", "Quantity", "Wholesale Cost", "Sale Price", "Supplier ID");
+                        System.out.println("-----------------------------------------------------------------------------");
+
+                        while (results.next()) {
+                            String product_id = results.getString("product_id");
+                            int quantity = results.getInt("quantity");
+                            double wholesale_cost = results.getDouble("wholesale_cost");
+                            double sale_price = results.getDouble("sale_price");
+                            String supplier_id = results.getString("supplier_id");
+                            System.out.printf("%-18s%-13s%-18s%-15s%-15s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
+
+                        }
+
+                    } catch (SQLException e) {
+                        System.out.println("Error generating results: ");
+                        e.printStackTrace();
+                    }
+
+
+                    System.out.println("--------------------------- End of Results ----------------------------------");
+                    System.out.println("\n");
+                    System.out.println("Would you like to search again with a new filter? Y/N");
+                    option = searchFilter.next();
+                } while (option.equals("Y"));
+                System.out.println("Exiting");
+                break;
+
+
+            case 2:
+                // customer orders submenu
+                int coMenuOption;
+                String option2 = "Y";
+                System.out.println("This menu will let you add and apply a filter before displaying matching database entries. \nSet a filter to generate results. ");
+                do {
+                    String searchCustDate = null;
+                    String searchCustEmail = null;
+                    String searchCustLoc = null;
+                    String searchCustPID = null;
+                    String searchCustQuant = null;
+                    do {
+                        System.out.println("\nWhich filter would you like to set? \n" +
+                                "1. Date \n" +
+                                "2. Email address \n" +
+                                "3. Zip Code \n" +
+                                "4. Product ID \n" +
+                                "5. Quantity");
+
+                        coMenuOption = searchFilter.nextInt();
+
+
+                        switch (coMenuOption) {
+                            case 1:
+                                System.out.println("Enter date in form 'YYYY-MM-DD' or type X to cancel: ");
+                                searchCustDate = searchFilter.next();
+                                if (searchCustDate.matches("X")) {
+                                    searchCustDate = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Date filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 2:
+                                System.out.println("Enter full customer email address or type X to cancel: ");
+                                searchCustEmail = searchFilter.next();
+                                if (searchCustEmail.matches("X")) {
+                                    searchCustEmail = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Customer email address filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 3:
+                                System.out.println("Enter customer zip code or type X to cancel: ");
+                                searchCustLoc = searchFilter.next();
+                                if (searchCustLoc.matches("X")) {
+                                    searchCustLoc = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Customer zip code filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 4:
+                                System.out.println("Enter Product ID or type X to cancel: ");
+                                searchCustPID = searchFilter.next();
+                                if (searchCustPID.matches("X")) {
+                                    searchCustPID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Product ID filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+
+                            case 5:
+                                System.out.println("Enter quantity purchased or type X to cancel: ");
+                                searchCustQuant = searchFilter.next();
+                                if (searchCustQuant.matches("X")) {
+                                    searchCustQuant = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Quantity filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
+                            default:
+                                System.out.println("Invalid option");
+                                break;
+                        }
+                    } while (option2 == "Y");
+
+
+                    // Building the sql query string with added filter
+
+                    try {
+                        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE";
+
+                        if (searchCustDate != null) {
+                            sqlQuery2 += " date = '" + searchCustDate + "'";
+                        } else if (searchCustEmail != null) {
+                            sqlQuery2 += " cust_email = '" + searchCustEmail + "'";
+                        } else if (searchCustLoc != null) {
+                            sqlQuery2 += " cust_location = '" + searchCustLoc + "'";
+                        } else if (searchCustPID != null) {
+                            sqlQuery2 += " product_id = '" + searchCustPID + "'";
+                        } else if (searchCustQuant != null) {
+                            sqlQuery2 += " product_quantity = '" + searchCustQuant + "'";
+                        }
+
+                        PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
+
+
+                        // for checking SQL query syntax
+                        // System.out.println(sqlQuery + "\n");
+
+                        // Display results from database
+                        ResultSet results2 = statement2.executeQuery(sqlQuery2);
+
+                        System.out.println("-----------------------------------------------------------------------------------------------");
+                        System.out.printf("%-15s%-20s%-15s%-18s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Product Quantity");
+                        System.out.println("-----------------------------------------------------------------------------------------------");
+
+                        while (results2.next()) {
+                            String date = results2.getString("date");
+                            String cust_email = results2.getString("cust_email");
+                            int cust_location = results2.getInt("cust_location");
+                            String product_id = results2.getString("product_id");
+                            int product_quantity = results2.getInt("product_quantity");
+                            System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
+
+                        }
+
+                    } catch (SQLException e) {
+                        System.out.println("Error generating results: ");
+                        e.printStackTrace();
+                    }
+
+
+                    System.out.println("-------------------------------- End of Results ------------------------------------------");
+                    System.out.println("\n");
+                    System.out.println("Would you like to search again with a new filter? Y/N");
+                    option = searchFilter.next();
+                } while (option.equals("Y"));
+                System.out.println("Exiting");
+                break;
+        }
+
+    }
+  
     public void delete(String id){
         try{
             PreparedStatement statement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");

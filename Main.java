@@ -225,6 +225,7 @@ public class Main {
 				System.out.println("[S] to import customer orders from csv");
 				System.out.println("[I] to insert new customer order");
 				System.out.println("[D] to delete a customer order");
+        System.out.println("[G] to generate report with filter");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("S")) {
 					System.out.println("-----------Importing orders-----------");
@@ -250,6 +251,9 @@ public class Main {
 					System.out.println("Order ID: ");
 					String order_id = input.nextLine();
 					db.deleteOrders(order_id);
+        } else if(editOption.contentEquals("G")) {
+					System.out.println("-----------Generate Report-----------");
+					db.search();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
