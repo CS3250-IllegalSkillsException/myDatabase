@@ -59,6 +59,15 @@ public class DiscordBot extends ListenerAdapter {
         return new OnlineUser(0,"","");
     }
 
+    private OnlineUser findUserByEmail(String email){
+        for (OnlineUser user : users) {
+            if (email.equals(user.getEmail())) {
+                return user;
+            }
+        }
+        return new OnlineUser(0,"","");
+    }
+
 @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event){
         System.out.println(event.getAuthor().getName() + ": " + event.getMessage().getContentDisplay());
@@ -94,7 +103,12 @@ public class DiscordBot extends ListenerAdapter {
                     password = "";
                 } else {
                     userChannel.sendMessage("Usage: !login (username) (password)").queue();
-                    return;
+                    break;
+                }
+                user = findUserByEmail(email);
+                if (user.getDiscordId() == 0){
+                    userChannel.sendMessage("Someone is already logged in as that user!").queue();
+                    break;
                 }
                 OnlineUser login = new OnlineUser(userId, email, password);
                 int loginStatus = login.attemptLogin(connection);
