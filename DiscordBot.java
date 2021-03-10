@@ -106,7 +106,7 @@ public class DiscordBot extends ListenerAdapter {
                     break;
                 }
                 user = findUserByEmail(email);
-                if (user.getDiscordId() == 0){
+                if (user.getDiscordId() != 0){
                     userChannel.sendMessage("Someone is already logged in as that user!").queue();
                     break;
                 }
