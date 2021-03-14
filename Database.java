@@ -219,8 +219,8 @@ public class Database {
                         	while (set1.next()) {
                         		String product_id = set1.getString("product_id");
                         		int quantity = set1.getInt("quantity");
-                        		int wholesale_cost = set1.getInt("wholesale_cost");
-                        		int sale_price = set1.getInt("sale_price");
+                        		double wholesale_cost = set1.getDouble("wholesale_cost");
+                        		double sale_price = set1.getDouble("sale_price");
                         		String supplier_id = set1.getString("supplier_id"); 
                         		System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
                         		System.out.format("%s, %s, %s, %s, %s\n", product_id,  quantity, wholesale_cost, sale_price, supplier_id);
