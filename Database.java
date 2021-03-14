@@ -203,34 +203,36 @@ public class Database {
         }
     }
 
-    public void read() {
-        PreparedStatement preparedStatement;
-        Scanner scanner = new Scanner(System.in);
-        try {
-            String loop;
-            do {
-                System.out.println("Enter which ID to read: \n"
-                        + " 1.Product ID \n"
-                        + " 2.Supplier ID");
-                int id = scanner.nextInt();
-                switch (id) {
-                    case 1:
-                        System.out.println("Enter Product ID: ");
-                        String prod_id = scanner.next();
-                        String sql1 = "SELECT product_id,  quantity, wholesale_cost, "
-                                + "sale_price, supplier_id FROM inventory "
-                                + "WHERE product_id= '" + prod_id + "'";
-                        PreparedStatement statement1 = connection.prepareStatement(sql1);
-                        ResultSet set1 = statement1.executeQuery(sql1);
-                        while (set1.next()) {
-                            String product_id = set1.getString("product_id");
-                            int quantity = set1.getInt("quantity");
-                            int wholesale_cost = set1.getInt("wholesale_cost");
-                            int sale_price = set1.getInt("sale_price");
-                            String supplier_id = set1.getString("supplier_id");
-                            System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
-                            System.out.format("%s, %s, %s, %s, %s\n", product_id, quantity, wholesale_cost, sale_price, supplier_id);
-                        }
+
+        public void read() {
+        	PreparedStatement preparedStatement;
+            Scanner scanner = new Scanner(System.in);
+            try {
+                String loop;
+                do {
+                	System.out.println("Enter which ID to read: \n"
+                			+ " 1.Product ID \n"
+                			+ " 2.Supplier ID");
+                    int id = scanner.nextInt();
+                    switch (id) {
+                        case 1:
+                        	System.out.println("Enter Product ID: ");
+                        	String prod_id = scanner.next();
+                        	String sql1 = "SELECT product_id,  quantity, wholesale_cost, "
+                        			+ "sale_price, supplier_id FROM inventory "
+                        			+ "WHERE product_id= '" + prod_id + "'";
+                        	PreparedStatement statement1 = connection.prepareStatement(sql1);
+                        	ResultSet set1 = statement1.executeQuery(sql1);
+                        	while (set1.next()) {
+                        		String product_id = set1.getString("product_id");
+                        		int quantity = set1.getInt("quantity");
+                        		double wholesale_cost = set1.getDouble("wholesale_cost");
+                        		double sale_price = set1.getDouble("sale_price");
+                        		String supplier_id = set1.getString("supplier_id"); 
+                        		System.out.println("product_id,  quantity, wholesale_cost, sale_price, supplier_id");
+                        		System.out.format("%s, %s, %s, %s, %s\n", product_id,  quantity, wholesale_cost, sale_price, supplier_id);
+                        	}
+                        	
 
                         break;
                     case 2:
