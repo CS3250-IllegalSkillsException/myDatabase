@@ -13,6 +13,18 @@ public class Main {
 
 	public static void menuLoop() {
 		String menuConfirm = "Y";
+		System.out.printf("\n.___.__  .__                      .__    ___________   .__.__  .__          \n" +
+				"|   |  | |  |   ____   _________  |  |  /   _____/  | _|__|  | |  |   ______\n" +
+				"|   |  | |  | _/ __ \\ / ___\\__  \\ |  |  \\_____  \\|  |/ /  |  | |  |  /  ___/\n" +
+				"|   |  |_|  |_\\  ___// /_/  > __ \\|  |__/        \\    <|  |  |_|  |__\\___ \\ \n" +
+				"|___|____/____/\\___  >___  (____  /____/_______  /__|_ \\__|____/____/____  >\n" +
+				"                   \\/_____/     \\/             \\/     \\/                 \\/ \n" +
+				"___________                           __  .__               \n" +
+				"\\_   _____/__  ___ ____  ____ _______/  |_|__| ____   ____  \n" +
+				" |    __)_\\  \\/  // ___\\/ __ \\\\____ \\   __\\  |/  _ \\ /    \\ \n" +
+				" |        \\>    <\\  \\__\\  ___/|  |_> >  | |  (  <_> )   |  \\\n" +
+				"/_______  /__/\\_ \\\\___  >___  >   __/|__| |__|\\____/|___|  /\n" +
+				"        \\/      \\/    \\/    \\/|__|                       \\/ \n\n");
 		System.out.println("-----Welcome to the inventory database editor-----");
 		while(menuConfirm.contentEquals("Y") | menuConfirm.contentEquals("y")) {
 			System.out.println("Would you like to use a database other than the local database? (Y/N) Enter X to quit.");

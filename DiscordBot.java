@@ -86,6 +86,34 @@ public class DiscordBot extends ListenerAdapter {
                 userChannel.sendMessage(ordersList).queue();
                 break;
             }
+            case "!recommend": {
+                long userId = event.getAuthor().getIdLong();
+                OnlineUser user = findUser(userId);
+                if (user.getDiscordId() == 0){
+                    userChannel.sendMessage("You are not logged in! Use !login").queue();
+                    break;
+                }
+                String productRecommend = user.getRecommend(connection);
+                userChannel.sendMessage(productRecommend).queue();
+                break;
+            }
+            case "!under20": {
+                long userId = event.getAuthor().getIdLong();
+                OnlineUser user = findUser(userId);
+                if (user.getDiscordId() == 0){
+                    userChannel.sendMessage("You are not logged in! Use !login").queue();
+                    break;
+                }
+                if (parameters.length == 2) {
+                    int page = Integer.parseInt(parameters[1]);
+                    String under20 = user.getUnder20(connection, page);
+                    userChannel.sendMessage(under20).queue();
+                    break;
+                } else {
+                    userChannel.sendMessage("Usage: !under20 (page number)").queue();
+                    break;
+                }
+            }
             case "!login": {
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
