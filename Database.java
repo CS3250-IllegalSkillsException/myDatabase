@@ -573,7 +573,7 @@ public class Database {
                         }
 
                     } catch (SQLException e) {
-                        System.out.println("Error generating results: ");
+                        System.out.println("Error generating results. ");
                         e.printStackTrace();
                     }
 
@@ -598,13 +598,15 @@ public class Database {
                     String searchCustLoc = null;
                     String searchCustPID = null;
                     String searchCustQuant = null;
+                    String searchCustOID = null;
                     do {
                         System.out.println("\nWhich filter would you like to set? \n" +
                                 "1. Date \n" +
                                 "2. Email address \n" +
                                 "3. Zip Code \n" +
                                 "4. Product ID \n" +
-                                "5. Quantity");
+                                "5. Quantity \n" +
+                                "6. Order ID");
 
                         coMenuOption = searchFilter.nextInt();
 
@@ -679,6 +681,19 @@ public class Database {
                                 }
                                 break;
 
+                            case 6:
+                                System.out.println("Enter Order ID or type X to cancel: ");
+                                searchCustOID = searchFilter.next();
+                                if (searchCustOID.matches("X")) {
+                                    searchCustOID = null;
+                                    System.out.println("Filter canceled.");
+                                } else {
+                                    System.out.println("Order ID filter set.");
+                                    System.out.println("Generating results... ");
+                                    option2 = "N";
+                                }
+                                break;
+
                             default:
                                 System.out.println("Invalid option");
                                 break;
@@ -689,7 +704,7 @@ public class Database {
                     // Building the sql query string with added filter
 
                     try {
-                        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE";
+                        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity, order_id FROM orders WHERE";
 
                         if (searchCustDate != null) {
                             sqlQuery2 += " date = '" + searchCustDate + "'";
@@ -701,6 +716,8 @@ public class Database {
                             sqlQuery2 += " product_id = '" + searchCustPID + "'";
                         } else if (searchCustQuant != null) {
                             sqlQuery2 += " product_quantity = '" + searchCustQuant + "'";
+                        } else if (searchCustOID != null) {
+                            sqlQuery2 += " order_id = '" + searchCustOID + "'";
                         }
 
                         PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
@@ -712,9 +729,9 @@ public class Database {
                         // Display results from database
                         ResultSet results2 = statement2.executeQuery(sqlQuery2);
 
-                        System.out.println("-----------------------------------------------------------------------------------------------");
-                        System.out.printf("%-15s%-20s%-15s%-18s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Product Quantity");
-                        System.out.println("-----------------------------------------------------------------------------------------------");
+                        System.out.println("----------------------------------------------------------------------------------------------------");
+                        System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Quantity", "Order ID");
+                        System.out.println("----------------------------------------------------------------------------------------------------");
 
                         while (results2.next()) {
                             String date = results2.getString("date");
@@ -722,17 +739,18 @@ public class Database {
                             int cust_location = results2.getInt("cust_location");
                             String product_id = results2.getString("product_id");
                             int product_quantity = results2.getInt("product_quantity");
-                            System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
+                            String order_id = results2.getString("order_id");
+                            System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", date, cust_email, cust_location, product_id, product_quantity, order_id);
 
                         }
 
                     } catch (SQLException e) {
-                        System.out.println("Error generating results: ");
+                        System.out.println("Error generating results. ");
                         e.printStackTrace();
                     }
 
 
-                    System.out.println("-------------------------------- End of Results ------------------------------------------");
+                    System.out.println("------------------------------------ End of Results -----------------------------------------------");
                     System.out.println("\n");
                     System.out.println("Would you like to search again with a new filter? Y/N");
                     option = searchFilter.next();
