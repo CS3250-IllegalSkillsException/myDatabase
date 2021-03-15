@@ -1,17 +1,19 @@
 import java.util.Scanner;
 import java.sql.SQLException;
-import java.util.Base64;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main {
 	private static final Boolean True = null;
 
-	public static void main(String[] args) throws SQLException {
-		menuLoop();
+	public static void main(String[] args) throws SQLException, ParseException {
+		menuLoop();	
 		
 	}
 	static Scanner input = new Scanner(System.in);
 
-	public static void menuLoop() {
+	public static void menuLoop() throws ParseException, SQLException {
 		String menuConfirm = "Y";
 		System.out.printf("\n.___.__  .__                      .__    ___________   .__.__  .__          \n" +
 				"|   |  | |  |   ____   _________  |  |  /   _____/  | _|__|  | |  |   ______\n" +
@@ -219,6 +221,7 @@ public class Main {
 	}
 	
 	public static void ordersTable(Database db) {
+
 		String notDone = "";
 		while(notDone != "N") {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
@@ -245,16 +248,29 @@ public class Main {
 					String product_id = input.nextLine();
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
+					//work in progress
+                    SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            		String date = temp.format(new Date());
 					while(Integer.parseInt(quantity) <= 0){
 						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
 						quantity = input.nextLine();
 					}
-					db.insertOrders(cust_email, cust_location, product_id, quantity);
+					db.insertOrders(date,cust_email, cust_location, product_id, quantity);
+					test.customerConfirm(cust_email, date, product_id, quantity);
 				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");
 					System.out.println("Order ID: ");
 					String order_id = input.nextLine();
-					db.deleteOrders(order_id);
+					System.out.println("Email: ");
+					String cust_email = input.nextLine();
+					String orderDate = test.findDate(order_id);
+					if(test.withinCancellatioWindow(orderDate)) {
+						test.customerCancel(cust_email,order_id);
+						System.out.println("Cancellation successful!");
+					} else {
+						System.out.println("Sorry, passed cancellation window");
+					}
+					
         } else if(editOption.contentEquals("G")) {
 					System.out.println("-----------Generate Report-----------");
 					db.search();
