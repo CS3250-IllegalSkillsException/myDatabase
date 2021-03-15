@@ -6,97 +6,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.time.LocalDate;
 
-public class Database {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/test";
-    private String username;
-    private String password;
-    private String csvFilePath = "inventory_team5.csv";
-    private String customerOrderCsv = "customer_orders_team3.csv";
-    private Connection connection;
-
+public class Database extends dataGovernance{
+    
     public Database(String user, String pass) {
-        username = user;
-        password = pass;
-        initializeConnection();
-    }
-
-    //non-default constructor for cases where we are accessing a different database.
-    public Database(String user, String pass, String url) {
-        username = user;
-        password = pass;
-        jdbcURL = url;
-        initializeConnection();
-    }
-
-    public void setUsername(String user) {
-        username = user;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setPassword(String pass) {
-        password = pass;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setJdbcUrl(String url) {
-        jdbcURL = url;
-    }
-
-    public String getJdbcUrl() {
-        return jdbcURL;
-    }
-
-    public void setCsvFilePath(String filepath) {
-        csvFilePath = filepath;
-    }
-
-    public String getCsvFilePath() {
-        return csvFilePath;
-    }
-
-    public void setCustomerOrderCsv(String filepath) {
-        customerOrderCsv = filepath;
-    }
-
-    public String getCustomerOrderCsv() {
-        return customerOrderCsv;
-    }
-
-
-    public void closeConnection() {
-        try {
-            connection.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    //attempts to connect to the SQL database. Returns true if successful, false if unsuccessful.
-    public boolean initializeConnection() {
-        try {
-            connection = DriverManager.getConnection(jdbcURL, username, password);
-            connection.setAutoCommit(false);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-        return true;
+        super(user, pass);
+        // TODO Auto-generated constructor stub
     }
 
     private int getNumEntries() {
