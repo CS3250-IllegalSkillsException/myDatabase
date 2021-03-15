@@ -1,36 +1,16 @@
 import java.sql.*;
 import java.util.Scanner;
 
-public class dataGovernance {
+public class dataGovernance extends DatabaseConnection{
 	
-	private String jdbcURL = "jdbc:mysql://localhost:3306/test";
-    private String username;
-    private String password;
-    private Connection connection;
-
+	
+    
     public dataGovernance(String user, String pass) {
-    	username = user;
-        password = pass;
-    	initializeConnection();
+        super(user, pass);
+        // TODO Auto-generated constructor stub
     }
-    
-    public boolean initializeConnection(){
-        try {
-            connection = DriverManager.getConnection(jdbcURL, username, password);
-            connection.setAutoCommit(false);
-        } catch (SQLException ex){
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-        return true;
-    }
-    
-    public void insertUser(String user_Id, int hash_User, int hash_Pass, boolean isAdmin){
+
+    public void insertUser(String user_Id, int hash_User, int hash_Pass, boolean isAdmin) {
         try {
             String sql = "INSERT INTO users (user_id, hash_User,hash_Pass, isAdmin) VALUES (?, ?, ?,?)";
             PreparedStatement statement = connection.prepareStatement(sql);
