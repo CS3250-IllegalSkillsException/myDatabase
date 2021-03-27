@@ -12,6 +12,7 @@ public class DiscordBot extends ListenerAdapter {
 
     private static Connection connection;
     private ArrayList<OnlineUser> users = new ArrayList<>();
+    private ProductRecommend recommend = new ProductRecommend();
 
     public static void main(String[] args) throws LoginException {
         Console cons = System.console();
@@ -93,7 +94,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
-                String productRecommend = user.getRecommend(connection);
+                String productRecommend = recommend.getRecommend(connection, user.getEmail());
                 userChannel.sendMessage(productRecommend).queue();
                 break;
             }
@@ -106,7 +107,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 if (parameters.length == 2) {
                     int page = Integer.parseInt(parameters[1]);
-                    String under20 = user.getUnder20(connection, page);
+                    String under20 = recommend.getUnder20(connection, page);
                     userChannel.sendMessage(under20).queue();
                     break;
                 } else {
