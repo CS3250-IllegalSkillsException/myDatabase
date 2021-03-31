@@ -250,19 +250,20 @@ public class Main {
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
 					//work in progress
-                    SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             		String date = temp.format(new Date());
-					while(Integer.parseInt(quantity) <= 0){
+					/*while(Integer.parseInt(quantity) <= 0){
 						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
 						quantity = input.nextLine();
-					}
+					}*/
 					db.insertOrders(date,cust_email, cust_location, product_id, quantity);
-					test.customerConfirm(cust_email, date, product_id, quantity);
+					//test.customerConfirm(cust_email, date, product_id, quantity);
 				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");
 					System.out.println("Order ID: ");
 					String order_id = input.nextLine();
-					System.out.println("Email: ");
+					db.deleteOrders(order_id);
+					/*System.out.println("Email: ");
 					String cust_email = input.nextLine();
 					String orderDate = test.findDate(order_id);
 					if(test.withinCancellatioWindow(orderDate)) {
@@ -270,7 +271,7 @@ public class Main {
 						System.out.println("Cancellation successful!");
 					} else {
 						System.out.println("Sorry, passed cancellation window");
-					}
+					}*/
 					
         } else if(editOption.contentEquals("G")) {
 					System.out.println("-----------Generate Report-----------");
