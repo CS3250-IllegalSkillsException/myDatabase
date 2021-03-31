@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.io.Console;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,12 +10,12 @@ public class Main {
 
 	public static void main(String[] args) throws SQLException, ParseException {
 		menuLoop();	
-		
 	}
 	static Scanner input = new Scanner(System.in);
 
 	public static void menuLoop() throws ParseException, SQLException {
 		String menuConfirm = "Y";
+		Console console = System.console();
 		System.out.printf("\n.___.__  .__                      .__    ___________   .__.__  .__          \n" +
 				"|   |  | |  |   ____   _________  |  |  /   _____/  | _|__|  | |  |   ______\n" +
 				"|   |  | |  | _/ __ \\ / ___\\__  \\ |  |  \\_____  \\|  |/ /  |  | |  |  /  ___/\n" +
@@ -36,8 +37,8 @@ public class Main {
 				Scanner input = new Scanner(System.in);
 				System.out.println("Username: ");
 				String username = input.nextLine();
-				System.out.println("Password: ");
-				String password = input.nextLine();
+				char[] pwd = console.readPassword("Password: ");
+				String password = new String(pwd);
 				System.out.println("Database URL: ");
 				String url = input.nextLine();
 			} else if (csvReply.contentEquals("N")) {
@@ -45,8 +46,8 @@ public class Main {
 				Scanner input = new Scanner(System.in);
 				System.out.println("Username: ");
 				String username = input.nextLine();
-				System.out.println("Password: ");
-				String password = input.nextLine();
+				char[] pwd = console.readPassword("Password: ");
+				String password = new String(pwd);
 				Database data = new Database(username, password);
 				String databaseConfirm = "Y";
 				while(databaseConfirm.contentEquals("Y") | databaseConfirm.contentEquals("y")){
