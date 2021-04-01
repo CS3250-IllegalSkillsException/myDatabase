@@ -8,8 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import javax.activation.*;
-
 
 public class CustomerReplyandCancel {
 	private String jdbcURL = "jdbc:mysql://localhost:3306/test";
@@ -42,7 +40,7 @@ public class CustomerReplyandCancel {
 	public void sendEmail(String email, String subject, String body) {
 		String sender = "illegalskillsexception3250@gmail.com";
 		String recipient = email;
-		String password = ""; //need to hide password
+		String password = "rootUser@1"; //need to hide password
 		
 		Properties prop = System.getProperties();
 		prop.put("mail.smtp.host", "smtp.gmail.com");
@@ -75,22 +73,26 @@ public class CustomerReplyandCancel {
 	}
 	
 	
-	public void customerConfirm(String cust_email, String date, String product_id, String quantity) {
+	public void customerConfirm(String cust_email, String date, String product_id, String quantity, String cust_location) {
 		//produce confirmation email when order is made
 		String body = "Thanks you for your order!\n\n"
 				+ "Order Details\n"
 				+ "----------------------\n"
 				+ "Order place on: " + date + "\n"
 				+ "Product ID: " + product_id + "\n"
-				+ "Order Quanitity: " + quantity + "\n\n"
+				+ "Order Quanitity: " + quantity + "\n"
+				+ "ZIP code of shipping address: " + cust_location + "\n"
 				+ "All orders may be cancelled within 24 hours";
 		sendEmail(cust_email, "Order Confirmation", body);
 	}
 	
-	public void customerCancel(String cust_email, String orderID) {
+	public void customerCancel(String cust_email, String orderID,String date) {
 		//produce cancellation email
-		String body = "Cancellation of order: " + orderID + "\n"
-				+ "Cancellation Confirmed\n\n"
+		String body = "Your order has been successfully cancelled!\n"
+				+ "--------------------------------------------\n"
+				+ "Cancellation of order: " + orderID + "\n"
+				+ "Order cancelled on: " + date + "\n\n"
+				+ "For any questions, please contact customer service.\n"
 				+ "";
 		sendEmail(cust_email, "Order Cancellation", body);
 	}

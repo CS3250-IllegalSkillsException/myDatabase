@@ -234,7 +234,9 @@ public class Main {
 				System.out.println("[S] to import customer orders from csv");
 				System.out.println("[I] to insert new customer order");
 				System.out.println("[D] to delete a customer order");
-        System.out.println("[G] to generate report with filter");
+				System.out.println("[P] to place a customer order");
+				System.out.println("[C] to cancel a customer order");
+				System.out.println("[G] to generate report with filter");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("S")) {
 					System.out.println("-----------Importing orders-----------");
@@ -257,9 +259,34 @@ public class Main {
 						quantity = input.nextLine();
 					}
 					db.insertOrders(date,cust_email, cust_location, product_id, quantity);
-					test.customerConfirm(cust_email, date, product_id, quantity, cust_location);
 				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");
+					System.out.println("Order ID: ");
+					String order_id = input.nextLine();
+					System.out.println("Email: ");
+					String cust_email = input.nextLine();
+					String orderDate = test.findDate(order_id);
+					db.deleteOrders(order_id);
+				} else if(editOption.contentEquals("P")) {
+					System.out.println("-----------New Order-----------");
+					System.out.println("Customer email: ");
+					String cust_email = input.nextLine();
+					System.out.println("Customer location: ");
+					String cust_location = input.nextLine();
+					System.out.println("Product ID: ");
+					String product_id = input.nextLine();
+					System.out.println("Quantity: ");
+					String quantity = input.nextLine();
+                    SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            		String date = temp.format(new Date());
+					while(Integer.parseInt(quantity) <= 0){
+						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
+						quantity = input.nextLine();
+					}
+					db.insertOrders(date,cust_email, cust_location, product_id, quantity);
+					test.customerConfirm(cust_email, date, product_id, quantity, cust_location);
+				} else if(editOption.contentEquals("C")) {
+					System.out.println("-----------Cancel Order-----------");
 					System.out.println("Order ID: ");
 					String order_id = input.nextLine();
 					System.out.println("Email: ");
