@@ -651,8 +651,8 @@ public class Database extends dataGovernance{
                     System.out.println("------------------------------------ End of Results -----------------------------------------------");
                     System.out.println("\n");
                     System.out.println("Would you like to search again with a new filter? Y/N");
-                    option = searchFilter.next();
-                } while (option.equals("Y"));
+                    option2 = searchFilter.next();
+                } while (option2.equals("Y"));
                 System.out.println("Exiting");
                 break;
         }
