@@ -250,7 +250,6 @@ public class Main {
 					String product_id = input.nextLine();
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
-					//work in progress
                     SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             		String date = temp.format(new Date());
 					while(Integer.parseInt(quantity) <= 0){
@@ -258,7 +257,7 @@ public class Main {
 						quantity = input.nextLine();
 					}
 					db.insertOrders(date,cust_email, cust_location, product_id, quantity);
-					test.customerConfirm(cust_email, date, product_id, quantity);
+					test.customerConfirm(cust_email, date, product_id, quantity, cust_location);
 				} else if(editOption.contentEquals("D")) {
 					System.out.println("-----------Delete Entry-----------");
 					System.out.println("Order ID: ");
@@ -267,8 +266,9 @@ public class Main {
 					String cust_email = input.nextLine();
 					String orderDate = test.findDate(order_id);
 					if(test.withinCancellatioWindow(orderDate)) {
-						test.customerCancel(cust_email,order_id);
+						test.customerCancel(cust_email,order_id, orderDate);
 						System.out.println("Cancellation successful!");
+						db.deleteOrders(order_id);
 					} else {
 						System.out.println("Sorry, passed cancellation window");
 					}
