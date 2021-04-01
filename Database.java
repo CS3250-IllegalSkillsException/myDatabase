@@ -15,11 +15,11 @@ public class Database extends dataGovernance{
 
     private int getNumEntries() {
         try{
-            String sql3 = "SELECT COUNT(*) FROM orders";
+            String sql3 = "SELECT order_id FROM test.orders ORDER BY CAST(order_id AS UNSIGNED) DESC LIMIT 1";
             PreparedStatement statement3 = connection.prepareStatement(sql3);
             ResultSet numRows = statement3.executeQuery();
             numRows.next();
-            return numRows.getInt("COUNT(*)");
+            return numRows.getInt("order_id");
         } catch (SQLException e){
             e.printStackTrace();
                 try {
