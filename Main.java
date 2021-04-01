@@ -94,7 +94,7 @@ public class Main {
 	}
 	public static void inventoryTable(Database db) {
 		String notDone = "";
-		while(notDone != "N") {
+		while(!notDone.equals("N")) {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
 		String editReply = input.nextLine();
 			if (editReply.contentEquals("Y")) {
@@ -224,7 +224,7 @@ public class Main {
 	public static void ordersTable(Database db) throws ParseException, SQLException{
 
 		String notDone = "";
-		while(notDone != "N") {
+		while(!notDone.equals("N")) {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
 		CustomerReplyandCancel test = new CustomerReplyandCancel(db.getUsername(), db.getPassword());
 		String editReply = input.nextLine();
