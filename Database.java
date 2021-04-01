@@ -596,7 +596,7 @@ public class Database extends dataGovernance{
                                 System.out.println("Invalid option");
                                 break;
                         }
-                    } while (option2 == "Y");
+                    } while (option2.equals("Y"));
 
 
                     // Building the sql query string with added filter
