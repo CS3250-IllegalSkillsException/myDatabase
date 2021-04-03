@@ -9,11 +9,13 @@ public class Main {
 	private static final Boolean True = null;
 
 	public static void main(String[] args) throws SQLException, ParseException {
-		menuLoop();	
+		menuLoop();
 	}
 	static Scanner input = new Scanner(System.in);
 
 	public static void menuLoop() throws ParseException, SQLException {
+		String username = null;
+		String password = null;
 		String menuConfirm = "Y";
 		Console console = System.console();
 		System.out.printf("\n.___.__  .__                      .__    ___________   .__.__  .__          \n" +
@@ -29,59 +31,76 @@ public class Main {
 				"/_______  /__/\\_ \\\\___  >___  >   __/|__| |__|\\____/|___|  /\n" +
 				"        \\/      \\/    \\/    \\/|__|                       \\/ \n\n");
 		System.out.println("-----Welcome to the inventory database editor-----");
-		while(menuConfirm.contentEquals("Y") | menuConfirm.contentEquals("y")) {
+		while (menuConfirm.contentEquals("Y") | menuConfirm.contentEquals("y")) {
 			System.out.println("Would you like to use a database other than the local database? (Y/N) Enter X to quit.");
 			String csvReply = input.nextLine();
-			if (csvReply.contentEquals("Y")){
+			if (csvReply.contentEquals("Y")) {
 				System.out.println("Please provide login info");
 				Scanner input = new Scanner(System.in);
 				System.out.println("Username: ");
-				String username = input.nextLine();
-				char[] pwd = console.readPassword("Password: ");
-				String password = new String(pwd);
+				username = input.nextLine();
+				if (console != null) {
+					char[] pwd = console.readPassword("Password: ");
+					password = new String(pwd);
+				} else {
+					System.out.println("Password: ");
+					password = input.nextLine();
+				}
 				System.out.println("Database URL: ");
 				String url = input.nextLine();
 			} else if (csvReply.contentEquals("N")) {
 				System.out.println("Please provide login info");
 				Scanner input = new Scanner(System.in);
 				System.out.println("Username: ");
-				String username = input.nextLine();
-				char[] pwd = console.readPassword("Password: ");
-				String password = new String(pwd);
+				username = input.nextLine();
+
+				// for running in command line
+				if (console != null) {
+					char[] pwd = console.readPassword("Password: ");
+					password = new String(pwd);
+
+				// for running in IDE
+				} else {
+					System.out.println("Password: ");
+					password = input.nextLine();
+				}
 				Database data = new Database(username, password);
+
 				String databaseConfirm = "Y";
-				while(databaseConfirm.contentEquals("Y") | databaseConfirm.contentEquals("y")){
+				while (databaseConfirm.contentEquals("Y") | databaseConfirm.contentEquals("y")) {
 					System.out.println("Which table would you like to edit? \n"
 							+ " 1. Inventory Table\n"
 							+ " 2. Users Table\n"
 							+ " 3. Orders Table");
 					int choice = input.nextInt();
 					input.nextLine();
-					switch(choice) {
-						case 1: 
+					switch (choice) {
+						case 1:
 							inventoryTable(data);
 							System.out.println("Would you like to keep editing the current database? (Y/N)");
 							databaseConfirm = input.nextLine();
-						break;
-						
+							break;
+
 						case 2:
 							usersTable(data);
 							System.out.println("Would you like to keep editing the current database? (Y/N)");
 							databaseConfirm = input.nextLine();
-							
-						break;
-						
+
+							break;
+
 						case 3:
 							ordersTable(data);
 							System.out.println("Would you like to keep editing the current database? (Y/N)");
 							databaseConfirm = input.nextLine();
-						break;
+							break;
 					}
 				}
 				System.out.println("Would you like to edit another database?");
 				menuConfirm = input.nextLine();
+			}
 
-			}  else if (csvReply.contentEquals("X") | menuConfirm.contentEquals("N")) {
+
+			else if (csvReply.contentEquals("X") | menuConfirm.contentEquals("N")) {
 				System.out.println("Exiting program...");
 				break;
 			} else {
@@ -95,8 +114,8 @@ public class Main {
 	public static void inventoryTable(Database db) {
 		String notDone = "";
 		while(!notDone.equals("N")) {
-		System.out.println("Would you like to edit your CSV file? (Y/N)");
-		String editReply = input.nextLine();
+			System.out.println("Would you like to edit your CSV file? (Y/N)");
+			String editReply = input.nextLine();
 			if (editReply.contentEquals("Y")) {
 				notDone = "";
 				System.out.println("Please enter one of the following options.");
@@ -136,23 +155,23 @@ public class Main {
 					db.read();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
-					}
+				}
 			} else if (editReply.contentEquals("N")) {
 				notDone = "N";
 			} else {
 				System.out.println("Invalid Response. Please enter Y or N.");
-				}
 			}
+		}
 	}
-	
+
 	public static void usersTable(Database db) {
 		System.out.println("Would you like to: \n"+
-							"1. Create a new user \n" + 
-							"2. Find User Email");
+				"1. Create a new user \n" +
+				"2. Find User Email");
 		int choice = input.nextInt();
 		input.nextLine();
 		switch(choice) {
-			case 1: 
+			case 1:
 				String adminPass = "rootUser";
 				System.out.println("Please input Admin password: ");
 				String pass1 = input.nextLine();
@@ -168,11 +187,11 @@ public class Main {
 					String newPass = input.nextLine();
 					int pass = newPass.hashCode();
 					db.insertUser(newID, email, pass, isAdmin);
-					
+
 					System.out.println("New Hashed Values");
 					System.out.println("Hashed Email" + email);
 					System.out.println("Hashed Password" + pass);
-					
+
 					//print hashed password
 				} else {
 					boolean isAdmin = false;
@@ -186,8 +205,8 @@ public class Main {
 					int reqP = reqPass.hashCode();
 					db.insertUser("",reqE,reqP,isAdmin);
 				}
-			break;
-			
+				break;
+
 			case 2:
 				System.out.println("-----Login Info-----");
 				System.out.println("Email: ");
@@ -202,32 +221,32 @@ public class Main {
 						System.out.println("Email exists in USER table");
 					} else {
 						System.out.println("Incorrect Password\n");
-						for(int numAttempt = 2; numAttempt > 0; numAttempt--) 
+						for(int numAttempt = 2; numAttempt > 0; numAttempt--)
 						{
-						System.out.println("Attempts left: "+ numAttempt);
-						System.out.println("Enter Password Again: ");
-						String tryAgain = input.nextLine();
-						if(!(db.passExists(tryAgain))) {
-							System.out.println("Incorrect Password");
-						} else {
-							System.out.println("Email exists in USER table");
+							System.out.println("Attempts left: "+ numAttempt);
+							System.out.println("Enter Password Again: ");
+							String tryAgain = input.nextLine();
+							if(!(db.passExists(tryAgain))) {
+								System.out.println("Incorrect Password");
+							} else {
+								System.out.println("Email exists in USER table");
 							}
 						}
 					}
 				} else {
 					System.out.println("Email not found: Please sign up or see Admin");
 				}
-			break;
+				break;
 		}
 	}
-	
+
 	public static void ordersTable(Database db) throws ParseException, SQLException{
 
 		String notDone = "";
 		while(!notDone.equals("N")) {
-		System.out.println("Would you like to edit your CSV file? (Y/N)");
-		CustomerReplyandCancel test = new CustomerReplyandCancel(db.getUsername(), db.getPassword());
-		String editReply = input.nextLine();
+			System.out.println("Would you like to edit your CSV file? (Y/N)");
+			CustomerReplyandCancel test = new CustomerReplyandCancel(db.getUsername(), db.getPassword());
+			String editReply = input.nextLine();
 			if (editReply.contentEquals("Y")) {
 				notDone = "";
 				System.out.println("Please enter one of the following options.");
@@ -252,8 +271,8 @@ public class Main {
 					String product_id = input.nextLine();
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
-                    SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            		String date = temp.format(new Date());
+					SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					String date = temp.format(new Date());
 					while(Integer.parseInt(quantity) <= 0){
 						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
 						quantity = input.nextLine();
@@ -277,8 +296,8 @@ public class Main {
 					String product_id = input.nextLine();
 					System.out.println("Quantity: ");
 					String quantity = input.nextLine();
-                    SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            		String date = temp.format(new Date());
+					SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					String date = temp.format(new Date());
 					while(Integer.parseInt(quantity) <= 0){
 						System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
 						quantity = input.nextLine();
@@ -299,18 +318,18 @@ public class Main {
 					} else {
 						System.out.println("Sorry, passed cancellation window");
 					}
-					
-        } else if(editOption.contentEquals("G")) {
+
+				} else if(editOption.contentEquals("G")) {
 					System.out.println("-----------Generate Report-----------");
 					db.search();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
-					}
+				}
 			} else if (editReply.contentEquals("N")) {
 				notDone = "N";
 			} else {
-					System.out.println("Invalid Response. Please enter Y or N.");
-					}
-				}
+				System.out.println("Invalid Response. Please enter Y or N.");
+			}
+		}
 	}
 }
