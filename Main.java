@@ -94,7 +94,7 @@ public class Main {
 	}
 	public static void inventoryTable(Database db) {
 		String notDone = "";
-		while(notDone != "N") {
+		while(!notDone.equals("N")) {
 		System.out.println("Would you like to edit your CSV file? (Y/N)");
 		String editReply = input.nextLine();
 			if (editReply.contentEquals("Y")) {
@@ -105,6 +105,7 @@ public class Main {
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
 				System.out.println("[R] to read an entry");
+				System.out.println("[X] to leave menu");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
@@ -134,6 +135,9 @@ public class Main {
 				} else if(editOption.contentEquals("R")) {
 					System.out.println("-----------Read Entry-----------");
 					db.read();
+				} else if(editOption.contentEquals("X")) {
+						System.out.println("\n");
+						notDone = "N";
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
@@ -148,7 +152,8 @@ public class Main {
 	public static void usersTable(Database db) {
 		System.out.println("Would you like to: \n"+
 							"1. Create a new user \n" + 
-							"2. Find User Email");
+							"2. Find User Email" +
+							"3. Exit Menu");
 		int choice = input.nextInt();
 		input.nextLine();
 		switch(choice) {
@@ -218,6 +223,9 @@ public class Main {
 					System.out.println("Email not found: Please sign up or see Admin");
 				}
 			break;
+			case 3:
+				System.out.println("Leaving menu....\n");
+			break;
 		}
 	}
 	
@@ -237,6 +245,7 @@ public class Main {
 				System.out.println("[P] to place a customer order");
 				System.out.println("[C] to cancel a customer order");
 				System.out.println("[G] to generate report with filter");
+				System.out.println("[X] to leave menu");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("S")) {
 					System.out.println("-----------Importing orders-----------");
@@ -296,13 +305,16 @@ public class Main {
 						test.customerCancel(cust_email,order_id, orderDate);
 						System.out.println("Cancellation successful!");
 						db.deleteOrders(order_id);
-					} else {
+				} else {
 						System.out.println("Sorry, passed cancellation window");
 					}
 					
         } else if(editOption.contentEquals("G")) {
 					System.out.println("-----------Generate Report-----------");
 					db.search();
+				} else if(editOption.contentEquals("X")) {
+					System.out.println("\n");	
+					notDone = "N";
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
