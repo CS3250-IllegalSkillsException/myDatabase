@@ -152,7 +152,7 @@ public class Main {
 	public static void usersTable(Database db) {
 		System.out.println("Would you like to: \n"+
 							"1. Create a new user \n" + 
-							"2. Find User Email" +
+							"2. Find User Email \n" +
 							"3. Exit Menu");
 		int choice = input.nextInt();
 		input.nextLine();
