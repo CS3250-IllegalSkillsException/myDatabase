@@ -74,13 +74,27 @@ public class DatabaseConnection {
             connection = DriverManager.getConnection(jdbcURL, username, password);
             connection.setAutoCommit(false);
         } catch (SQLException ex){
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (ex.getErrorCode() == 1045){
+                System.out.println("Wrong Username and Password! Please try again");
+                Scanner input = new Scanner(System.in);
+                Console console = System.console();
+                while(connection == null){
+				    System.out.println("Username: ");
+				    username = input.nextLine();
+				    char[] pwd = console.readPassword("Password: ");
+				    password = new String(pwd);
+                    initializeConnection();
+                }
             }
-            return connection;
+            else {
+                ex.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return connection;
+            }
         }
         return connection;
     }
