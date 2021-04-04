@@ -6,7 +6,7 @@ public class DatabaseConnection {
     protected String jdbcURL = "jdbc:mysql://localhost:3306/test";
     protected String username;
     protected String password;
-    protected String csvFilePath = "inventory_team5.csv";
+    protected String csvFilePath = "inventory_team3.csv";
     protected String customerOrderCsv = "customer_orders_team3.csv";
     protected Connection connection;
 

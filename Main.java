@@ -105,6 +105,7 @@ public class Main {
 				System.out.println("[D] to delete an entry");
 				System.out.println("[M] to modify an entry");
 				System.out.println("[R] to read an entry");
+				System.out.println("[E] to export CSV file");
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("Q")) {
 					System.out.println("------Importing... Please wait------");
@@ -134,6 +135,9 @@ public class Main {
 				} else if(editOption.contentEquals("R")) {
 					System.out.println("-----------Read Entry-----------");
 					db.read();
+				} else if (editOption.contentEquals("E")) {
+					System.out.println("-----------Exporting CSV-----------");
+					db.exportInvCSV();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}
@@ -146,9 +150,10 @@ public class Main {
 	}
 	
 	public static void usersTable(Database db) {
-		System.out.println("Would you like to: \n"+
-							"1. Create a new user \n" + 
-							"2. Find User Email");
+		System.out.println("Would you like to: \n" +
+				"1. Create a new user \n" +
+				"2. Find User Email \n" +
+				"3. Export CSV file");
 		int choice = input.nextInt();
 		input.nextLine();
 		switch(choice) {
@@ -217,7 +222,10 @@ public class Main {
 				} else {
 					System.out.println("Email not found: Please sign up or see Admin");
 				}
-			break;
+			case 3:
+				System.out.println("-----------Exporting CSV-----------");
+				db.exportUsersCSV();
+				break;
 		}
 	}
 	
@@ -237,6 +245,9 @@ public class Main {
 				System.out.println("[P] to place a customer order");
 				System.out.println("[C] to cancel a customer order");
 				System.out.println("[G] to generate report with filter");
+				System.out.println("[E] to export CSV file");
+
+
 				String editOption = input.nextLine();
 				if(editOption.contentEquals("S")) {
 					System.out.println("-----------Importing orders-----------");
@@ -303,6 +314,9 @@ public class Main {
         } else if(editOption.contentEquals("G")) {
 					System.out.println("-----------Generate Report-----------");
 					db.search();
+				} else if (editOption.contentEquals("E")) {
+					System.out.println("-----------Exporting CSV-----------");
+					db.exportOrdersCSV();
 				} else {
 					System.out.println("Invalid Response. Please enter a valid option.");
 					}

@@ -117,15 +117,150 @@ public class Database extends dataGovernance{
             }
         }
 
-        public void read() {
-        	PreparedStatement preparedStatement;
-            Scanner scanner = new Scanner(System.in);
-            try {
-                String loop;
-                do {
-                	System.out.println("Enter which ID to read: \n"
-                			+ " 1.Product ID \n"
-                			+ " 2.Supplier ID");
+    public void exportInvCSV() {
+        String home = System.getProperty("user.home");
+        try {
+            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\Inventory.csv"));
+            StringBuilder sb = new StringBuilder();
+            ResultSet rs = null;
+            sb.append("product_id");
+            sb.append(",");
+            sb.append("quantity");
+            sb.append(",");
+            sb.append("wholesale_cost");
+            sb.append(",");
+            sb.append("sale_price");
+            sb.append(",");
+            sb.append("supplier_id");
+            sb.append("\n");
+
+            String query = "select * from inventory";
+            PreparedStatement ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                sb.append(rs.getString("product_id"));
+                sb.append(",");
+                sb.append(rs.getString("quantity"));
+                sb.append(",");
+                sb.append(rs.getString("wholesale_cost"));
+                sb.append(",");
+                sb.append(rs.getString("sale_price"));
+                sb.append(",");
+                sb.append(rs.getString("supplier_id"));
+                sb.append("\r\n");
+            }
+
+            pw.write(sb.toString());
+            pw.close();
+            System.out.println("Export complete. Find Inventory.csv in your Downloads folder.");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exportOrdersCSV() {
+        String home = System.getProperty("user.home");
+        try {
+            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\Orders.csv"));
+            StringBuilder sb = new StringBuilder();
+            ResultSet rs = null;
+            sb.append("order_id");
+            sb.append(",");
+            sb.append("date");
+            sb.append(",");
+            sb.append("cust_email");
+            sb.append(",");
+            sb.append("cust_location");
+            sb.append(",");
+            sb.append("product_id");
+            sb.append(",");
+            sb.append("product_quantity");
+            sb.append("\n");
+
+            String query = "select * from orders";
+            PreparedStatement ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                sb.append(rs.getString("order_id"));
+                sb.append(",");
+                sb.append(rs.getString("date"));
+                sb.append(",");
+                sb.append(rs.getString("cust_email"));
+                sb.append(",");
+                sb.append(rs.getString("cust_location"));
+                sb.append(",");
+                sb.append(rs.getString("product_id"));
+                sb.append(",");
+                sb.append(rs.getString("product_quantity"));
+                sb.append("\r\n");
+            }
+
+            pw.write(sb.toString());
+            pw.close();
+            System.out.println("Export complete. Find Orders.csv in your Downloads folder.");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exportUsersCSV() {
+        String home = System.getProperty("user.home");
+        try {
+            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\Users.csv"));
+            StringBuilder sb = new StringBuilder();
+            ResultSet rs = null;
+            sb.append("user_id");
+            sb.append(",");
+            sb.append("hash_User");
+            sb.append(",");
+            sb.append("hash_Pass");
+            sb.append(",");
+            sb.append("isAdmin");
+            sb.append("\n");
+
+            String query = "select * from users";
+            PreparedStatement ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                sb.append(rs.getString("user_id"));
+                sb.append(",");
+                sb.append(rs.getString("hash_User"));
+                sb.append(",");
+                sb.append(rs.getString("hash_Pass"));
+                sb.append(",");
+                sb.append(rs.getString("isAdmin"));
+                sb.append("\r\n");
+            }
+
+            pw.write(sb.toString());
+            pw.close();
+            System.out.println("Export complete. Find Users.csv in your Downloads folder.");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void read() {
+        PreparedStatement preparedStatement;
+        Scanner scanner = new Scanner(System.in);
+        try {
+            String loop;
+            do {
+                System.out.println("Enter which ID to read: \n"
+                        + " 1.Product ID \n"
+                        + " 2.Supplier ID");
                     int id = scanner.nextInt();
                     switch (id) {
                         case 1:
