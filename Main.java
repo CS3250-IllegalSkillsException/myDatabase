@@ -124,6 +124,7 @@ public class Main {
                 System.out.println("[M] to modify an entry");
                 System.out.println("[R] to read an entry");
                 System.out.println("[E] to export CSV file");
+                System.out.println("[X] to leave menu");
                 String editOption = input.nextLine();
                 if (editOption.contentEquals("Q")) {
                     System.out.println("------Importing... Please wait------");
@@ -156,6 +157,9 @@ public class Main {
                 } else if (editOption.contentEquals("E")) {
 					          System.out.println("-----------Exporting CSV-----------");
 					          db.exportInvCSV();
+                } else if(editOption.contentEquals("X")) {
+						        System.out.println("\n");
+						        notDone = "N";
                 } else {
                     System.out.println("Invalid Response. Please enter a valid option.");
                 }
@@ -171,7 +175,8 @@ public class Main {
       	System.out.println("Would you like to: \n" +
 				        "1. Create a new user \n" +
 				        "2. Find User Email \n" +
-				        "3. Export CSV file");
+				        "3. Export CSV file \n" +
+                "4. Exit menu");
         int choice = input.nextInt();
         input.nextLine();
         switch (choice) {
@@ -244,6 +249,9 @@ public class Main {
 				        System.out.println("-----------Exporting CSV-----------");
 				        db.exportUsersCSV();
 				        break;
+            case 4:
+				        System.out.println("Leaving menu....\n");
+			          break;
         }
     }
 
@@ -264,6 +272,7 @@ public class Main {
                 System.out.println("[C] to cancel a customer order");
                 System.out.println("[G] to generate report with filter");
                 System.out.println("[E] to export CSV file");
+                System.out.println("[X] to leave menu");
                 String editOption = input.nextLine();
                 if (editOption.contentEquals("S")) {
                     System.out.println("-----------Importing orders-----------");
@@ -336,6 +345,9 @@ public class Main {
                 } else if (editOption.contentEquals("E")) {
 					          System.out.println("-----------Exporting CSV-----------");
 					          db.exportOrdersCSV();
+                } else if(editOption.contentEquals("X")) {
+					          System.out.println("\n");	
+					          notDone = "N";
                 } else {
                     System.out.println("Invalid Response. Please enter a valid option.");
                 }
