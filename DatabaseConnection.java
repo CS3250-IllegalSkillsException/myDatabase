@@ -6,7 +6,7 @@ public class DatabaseConnection {
     protected String jdbcURL = "jdbc:mysql://localhost:3306/test";
     protected String username;
     protected String password;
-    protected String csvFilePath = "inventory_team5.csv";
+    protected String csvFilePath = "inventory_team3.csv";
     protected String customerOrderCsv = "customer_orders_team3.csv";
     protected Connection connection;
 
@@ -74,13 +74,25 @@ public class DatabaseConnection {
             connection = DriverManager.getConnection(jdbcURL, username, password);
             connection.setAutoCommit(false);
         } catch (SQLException ex){
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (ex.getErrorCode() == 1045){
+                System.out.println("Wrong Username and Password! Please try again");
+                Scanner input = new Scanner(System.in);
+                Console console = System.console();
+				System.out.println("Username: ");
+				username = input.nextLine();
+				char[] pwd = console.readPassword("Password: ");
+				password = new String(pwd);
+                initializeConnection();
             }
-            return connection;
+            else {
+                ex.printStackTrace();
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return connection;
+            }
         }
         return connection;
     }

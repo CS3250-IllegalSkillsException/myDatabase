@@ -3,6 +3,7 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import javax.security.auth.login.LoginException;
 import java.io.Console;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
-                String ordersList = user.getOrders(connection);
+                String ordersList = "```" + user.getOrders(connection) + "```";
                 userChannel.sendMessage(ordersList).queue();
                 break;
             }
@@ -107,7 +108,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 if (parameters.length == 2) {
                     int page = Integer.parseInt(parameters[1]);
-                    String under20 = recommend.getUnder20(connection, page);
+                    String under20 = "```" + recommend.getUnder20(connection, page) + "```";
                     userChannel.sendMessage(under20).queue();
                     break;
                 } else {
