@@ -40,7 +40,7 @@ public class CustomerOrders {
         System.out.println("Email address:");
         email = input.nextLine();                  //illegalskillsexceptiont3@gmail.com
         System.out.println("Password:");
-        password = input.nextLine();               //ro0t1234
+        password = input.nextLine();
         System.out.println("Shipping address:");
         shippingAddress = input.nextLine();
         System.out.println("Product ID:");
