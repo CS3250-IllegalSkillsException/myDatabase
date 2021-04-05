@@ -64,7 +64,9 @@ public class ProductRecommend {
 
     public String getUnder20(Connection connection, int page){
         String sqlQuery = "SELECT * FROM inventory WHERE sale_price <= 20";
-        String output = "Products Under $20 - Page " + page + ":\n\n";
+        String output = "Products Under $20 - Page " + page + ":\n\n" 
+                        + String.format("%-18s%-15s\n", "Product ID","Sale Price") 
+                        + "----------------------------\n\n";
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet catalog = statement.executeQuery(sqlQuery);
