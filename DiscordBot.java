@@ -11,9 +11,8 @@ import java.sql.*;
 
 public class DiscordBot extends ListenerAdapter {
 
-    private static Connection connection;
+    private static Orders db;
     private ArrayList<OnlineUser> users = new ArrayList<>();
-    private ProductRecommend recommend = new ProductRecommend();
 
     public static void main(String[] args) throws LoginException {
         Console cons = System.console();
@@ -24,17 +23,7 @@ public class DiscordBot extends ListenerAdapter {
         String username = cons.readLine();
         System.out.println("Password: ");
         char[] databasePassword = cons.readPassword();
-        try {
-            connection = DriverManager.getConnection(jdbcURL, username, new String(databasePassword));
-            connection.setAutoCommit(false);
-        } catch (SQLException ex){
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        db = new Orders(username,new String(databasePassword));
         //NOTE: NEVER EVER DIRECTLY INPUT THE TOKEN INTO THE CODE. SOMEONE BROWSING GITHUB **WILL** FIND IT.
         //YOU DO NOT WANT THAT. THEY WILL MAKE YOUR BOT DO THINGS YOU NEVER WANTED IT TO.
         System.out.println("Please input the token: ");
@@ -84,7 +73,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
-                String ordersList = "```" + user.getOrders(connection) + "```";
+                String ordersList = "```" + db.getOrders(user.getEmail()) + "```";
                 userChannel.sendMessage(ordersList).queue();
                 break;
             }
@@ -95,7 +84,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
-                String productRecommend = recommend.getRecommend(connection, user.getEmail());
+                String productRecommend = db.getRecommend(user.getEmail());
                 userChannel.sendMessage(productRecommend).queue();
                 break;
             }
@@ -108,7 +97,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 if (parameters.length == 2) {
                     int page = Integer.parseInt(parameters[1]);
-                    String under20 = "```" + recommend.getUnder20(connection, page) + "```";
+                    String under20 = "```" + db.getUnder20(page) + "```";
                     userChannel.sendMessage(under20).queue();
                     break;
                 } else {
@@ -141,7 +130,7 @@ public class DiscordBot extends ListenerAdapter {
                     break;
                 }
                 OnlineUser login = new OnlineUser(userId, email, password);
-                int loginStatus = login.attemptLogin(connection);
+                int loginStatus = login.attemptLogin(db.getConnection());
                 switch (loginStatus) {
                     case 1:
                         userChannel.sendMessage("Login successful for " + email).queue();

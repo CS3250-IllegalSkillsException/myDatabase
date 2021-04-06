@@ -48,6 +48,8 @@ public class DatabaseConnection {
             return jdbcURL;
         }
 
+        public Connection getConnection() { return connection; }
+
         public void setCsvFilePath(String filepath){
             csvFilePath = filepath;
         }

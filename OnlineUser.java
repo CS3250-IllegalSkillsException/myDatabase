@@ -66,35 +66,5 @@ public class OnlineUser {
         }
         return 4;
     }
-    public String getOrders(Connection connection){
-        //Note that we currently use plaintext emails in the orders database. This code will be changed when we switch to hashed ones.
-        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
-                + " cust_email = '" + email + "'";
-        String output = "Orders:\n";
-        try {
-            PreparedStatement statement = connection.prepareStatement(sqlQuery2);
-            ResultSet results = statement.executeQuery(sqlQuery2);
-            while (results.next()) {
-                String date = results.getString("date");
-                String cust_email = results.getString("cust_email");
-                int cust_location = results.getInt("cust_location");
-                String product_id = results.getString("product_id");
-                int product_quantity = results.getInt("product_quantity");
-                //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
-                /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
-                        + product_id + " Quantity: " + product_quantity;*/
-                String text = String.format("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
-                output = output + text + "\n";
-            }
-            return output;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return "Error.";
-    }
+
 }

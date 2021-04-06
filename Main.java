@@ -110,7 +110,8 @@ public class Main {
         }
     }
 
-    public static void inventoryTable(Database db) {
+    public static void inventoryTable(Database genericDB) {
+        Inventory db = new Inventory(genericDB);
         String notDone = "";
         while (!notDone.equals("N")) {
             System.out.println("Would you like to edit your CSV file? (Y/N)");
@@ -171,7 +172,8 @@ public class Main {
         }
     }
 
-    public static void usersTable(Database db) {
+    public static void usersTable(Database genericDB) {
+        Users db = new Users(genericDB);
       	System.out.println("Would you like to: \n" +
 				        "1. Create a new user \n" +
 				        "2. Find User Email \n" +
@@ -255,8 +257,8 @@ public class Main {
         }
     }
 
-    public static void ordersTable(Database db) throws ParseException, SQLException {
-
+    public static void ordersTable(Database genericDB) throws ParseException, SQLException {
+        Orders db = new Orders(genericDB);
         String notDone = "";
         while (!notDone.equals("N")) {
             System.out.println("Would you like to edit your CSV file? (Y/N)");
