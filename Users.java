@@ -1,5 +1,3 @@
-import net.dv8tion.jda.api.entities.User;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -13,7 +11,7 @@ public class Users extends Database{
         super(db.getUsername(),db.getPassword());
     }
 
-    private DataGovernance hashing = new DataGovernance();
+    private final DataGovernance hashing = new DataGovernance();
 
     public void insertUser(String user_Id, int hash_User, int hash_Pass, boolean isAdmin) {
         try {

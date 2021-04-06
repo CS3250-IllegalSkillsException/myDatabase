@@ -3,11 +3,9 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.MarkdownUtil;
 import javax.security.auth.login.LoginException;
 import java.io.Console;
 import java.util.ArrayList;
-import java.sql.*;
 
 public class DiscordBot extends ListenerAdapter {
 
