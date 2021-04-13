@@ -111,6 +111,36 @@ public class Orders extends Database{
         }
     }
 
+    public void orderReport() {
+        String home = System.getProperty("user.home");
+        try {
+            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\OrderReport.csv"));
+            StringBuilder sb = new StringBuilder();
+            ResultSet rs = null;
+            sb.append("product_id");
+            sb.append(",");
+            sb.append("quantity_sold");
+            sb.append(",");
+
+            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
+            PreparedStatement ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                sb.append(rs.getString("product_id"));
+                sb.append(",");
+                sb.append(rs.getString("quantity_sold"));
+                sb.append("\r\n");
+            }
+            pw.write(sb.toString());
+            pw.close();
+            System.out.println("Export complete. Find OrderReport.csv in your Downloads folder.");
+
+        } catch (FileNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void insertOrders(String date, String cust_email, String cust_location, String product_id, String product_quantity) {
         try {
             PreparedStatement productCheck = connection.prepareStatement("SELECT * FROM inventory WHERE product_id = ?");
