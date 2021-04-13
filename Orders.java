@@ -687,4 +687,62 @@ public class Orders extends Database{
         return "Error.";
     }
 
+    public int getNumOrdersForDay(Day date){
+        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
+                + " date LIKE '" + date.getDay() + "%'";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sqlQuery2);
+            ResultSet results = statement.executeQuery(sqlQuery2);
+            int i = 0;
+            while (results.next()) {
+                i++;
+            }
+            return i;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+
+    public double getRevenueForDay(Day date){
+        String sqlQuery = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
+                + " date LIKE '" + date.getDay() + "%'";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sqlQuery);
+            ResultSet results = statement.executeQuery(sqlQuery);
+            double totalMoney = 0.0;
+            while (results.next()) {
+                String product = results.getString("product_id");
+                int quantity = results.getInt("product_quantity");
+                double productCost;
+                String sqlQuery2 = "SELECT product_id,  quantity, wholesale_cost, "
+                        + "sale_price, supplier_id FROM inventory "
+                        + "WHERE product_id= '" + product + "'";
+                PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
+                ResultSet results2 = statement2.executeQuery(sqlQuery2);
+                if(results2.next()){
+                    productCost = results2.getDouble("wholesale_cost");
+                } else {
+                    System.out.println("Product does not exist in inventory for: " + product);
+                    productCost = 0;
+                }
+                totalMoney = totalMoney + (quantity * productCost);
+            }
+            return totalMoney;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+
 }
