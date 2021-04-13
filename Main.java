@@ -260,6 +260,7 @@ public class Main {
     public static void ordersTable(Database genericDB) throws ParseException, SQLException {
         Orders db = new Orders(genericDB);
         String notDone = "";
+        Orders orders = new Orders(genericDB);
         while (!notDone.equals("N")) {
             System.out.println("Would you like to edit your CSV file? (Y/N)");
             CustomerReplyandCancel test = new CustomerReplyandCancel(db.getUsername(), db.getPassword());
@@ -345,11 +346,23 @@ public class Main {
                     System.out.println("-----------Generate Report-----------");
                     db.search();
                 } else if (editOption.contentEquals("E")) {
-					          System.out.println("-----------Exporting CSV-----------");
-					          db.exportOrdersCSV();
-                } else if(editOption.contentEquals("X")) {
-					          System.out.println("\n");	
-					          notDone = "N";
+                    System.out.println("What report would you like to export?");
+                    System.out.println("[F] Full orders report");
+                    System.out.println("[B] Best-selling products report");
+                    System.out.println("[C] Highest-spending customers report");
+                    String subOption = input.nextLine();
+                    if (subOption.contentEquals("F")) {
+                        System.out.println("-----------Exporting CSV-----------");
+                        db.exportOrdersCSV();
+                    } else if (subOption.contentEquals("B")) {
+                        orders.orderReport();
+                    } else if (subOption.contentEquals("C")) {
+                        // meddy method
+                    }
+
+                } else if (editOption.contentEquals("X")) {
+                    System.out.println("\n");
+                    notDone = "N";
                 } else {
                     System.out.println("Invalid Response. Please enter a valid option.");
                 }
