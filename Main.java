@@ -324,8 +324,11 @@ public class Main {
                         System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
                         quantity = input.nextLine();
                     }
+                    String productRecommend = db.RemarketRecommend(product_id, cust_email);
                     db.insertOrders(date, cust_email, cust_location, product_id, quantity);
                     test.customerConfirm(cust_email, date, product_id, quantity, cust_location);
+                    test.customerRecommend(cust_email, productRecommend);
+
                 } else if (editOption.contentEquals("C")) {
                     System.out.println("-----------Cancel Order-----------");
                     System.out.println("Order ID: ");

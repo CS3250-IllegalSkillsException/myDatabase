@@ -82,7 +82,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
-                String productRecommend = db.getRecommend(user.getEmail());
+                String productRecommend = "Here's a recommended product for you!\nProduct ID: " + db.getRecommend(user.getEmail());
                 userChannel.sendMessage(productRecommend).queue();
                 break;
             }
