@@ -15,14 +15,14 @@ public class Database extends DatabaseConnection{
             numRows.next();
             return numRows.getInt("order_id");
         } catch (SQLException e){
-            e.printStackTrace();
+            //e.printStackTrace();
                 try {
                     connection.rollback();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
         }
-        return -100;
+        return 0;
     }
 
 
