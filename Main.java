@@ -274,6 +274,7 @@ public class Main {
                 System.out.println("[C] to cancel a customer order");
                 System.out.println("[G] to generate report with filter");
                 System.out.println("[E] to export CSV file");
+                System.out.println("[F] to display finance reports");
                 System.out.println("[X] to leave menu");
                 String editOption = input.nextLine();
                 if (editOption.contentEquals("S")) {
@@ -345,8 +346,20 @@ public class Main {
                     System.out.println("-----------Generate Report-----------");
                     db.search();
                 } else if (editOption.contentEquals("E")) {
-					          System.out.println("-----------Exporting CSV-----------");
-					          db.exportOrdersCSV();
+                    System.out.println("-----------Exporting CSV-----------");
+                    db.exportOrdersCSV();
+                } else if (editOption.contentEquals("F")) {
+                    System.out.println("Input the start date yyyy-MM-dd");
+                    String start = input.nextLine();
+                    System.out.println("Input the end date yyyy-MM-dd");
+                    String end = input.nextLine();
+                    System.out.println("Displaying finance reports");
+                    FinanceReports report = new FinanceReports(db,start,end);
+                    report.displayFinanceReports();
+                    System.out.println("Enter anything to see the order report");
+                    input.nextLine();
+                    FinanceReports report2 = new FinanceReports(db,start,end);
+                    report2.displayOrderReports();
                 } else if(editOption.contentEquals("X")) {
 					          System.out.println("\n");	
 					          notDone = "N";
