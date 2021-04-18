@@ -360,7 +360,7 @@ public class Main {
                         orders.orderReport();
                     } else if (subOption.contentEquals("C")) {
                         // meddy method
-                    	customer.exportCustomerReport();
+                    	customer.customerReport();
                     }
                 } else if (editOption.contentEquals("F")) {
                     System.out.println("Input the start date yyyy-MM-dd");
