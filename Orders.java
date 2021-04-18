@@ -19,12 +19,12 @@ public class Orders extends Database{
             BufferedReader lineReader = new BufferedReader(new FileReader(customerOrderCsv));
             String lineText = null;
             lineReader.readLine(); // skip header line
-            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             String sql2 = "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?";
             PreparedStatement statement2 = connection.prepareStatement(sql2);
             int orderId = getNumEntries() + 1;
-            int count = 0;
+            int count = 0;            
             while ((lineText = lineReader.readLine()) != null) {
                 statement.setInt(1, orderId);
                 String[] data = lineText.split(",");
@@ -35,6 +35,9 @@ public class Orders extends Database{
                 statement.setString(6, data[4]);
                 statement2.setInt(1, Integer.parseInt(data[4]));
                 statement2.setString(2, data[3]);
+                int quant = Integer.parseInt(data[4]);
+                double subtotal = getSubtotal(data[3], quant);
+                statement.setDouble(7,subtotal);
                 statement.addBatch();
                 statement2.addBatch();
                 if (count >= 20) {
@@ -45,6 +48,7 @@ public class Orders extends Database{
                 count++;
                 orderId++;
             }
+            
             lineReader.close();
             // execute the remaining queries
             statement.executeBatch();
@@ -60,6 +64,16 @@ public class Orders extends Database{
                 e.printStackTrace();
             }
         }
+    }
+    
+    public double getSubtotal(String product_id, int quantity) throws SQLException {
+    	String sql = "SELECT sale_price FROM inventory WHERE product_id = '" + product_id + "'";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        ResultSet set = statement.executeQuery();
+        set.next();
+        double sale_price = set.getDouble("sale_price");
+        double subtotal = sale_price*quantity;
+        return subtotal;
     }
 
     public void exportOrdersCSV() {
