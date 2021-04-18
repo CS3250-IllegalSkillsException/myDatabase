@@ -113,6 +113,12 @@ public class Orders extends Database{
 
     public void orderReport() {
         String home = System.getProperty("user.home");
+        int days;
+        System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' will generate a report for the best-selling products in the last 7 days.");
+        System.out.println("Enter number of days to generate report on: ");
+        Scanner dayInput = new Scanner(System.in);
+        days = dayInput.nextInt();
+
         try {
             PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\OrderReport.csv"));
             StringBuilder sb = new StringBuilder();
@@ -122,7 +128,7 @@ public class Orders extends Database{
             sb.append("quantity_sold");
             sb.append(",");
 
-            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
+            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
 
@@ -134,7 +140,7 @@ public class Orders extends Database{
             }
             pw.write(sb.toString());
             pw.close();
-            System.out.println("Export complete. Find OrderReport.csv in your Downloads folder.");
+            System.out.println(days + " day report export complete. Find OrderReport.csv in your Downloads folder.");
 
         } catch (FileNotFoundException | SQLException e) {
             e.printStackTrace();
