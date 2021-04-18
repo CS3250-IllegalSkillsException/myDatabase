@@ -584,11 +584,11 @@ public class Orders extends Database{
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet customers = statement.executeQuery();
-            customers.last();
-            int size = customers.getRow();
             if (customers.first() == false){
                 recommend = getRecommend(email);
             } else {
+                customers.last();
+                int size = customers.getRow();
                 Random rand = new Random();
                 int int_random = rand.nextInt(size) + 1;
                 customers.absolute(int_random);
@@ -596,23 +596,23 @@ public class Orders extends Database{
                 String sqlQuery2 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND date(date) = '" + date + "' AND product_id != '" + product_id + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery2, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery();
-                catalog.last();
-                int size2 = catalog.getRow();
                 if  (catalog.first() == false) {
                     String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + customers.getString("order_id") + "')";
                     PreparedStatement statement3 = connection.prepareStatement(sqlQuery3, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                     ResultSet catalog2 = statement3.executeQuery();
-                    catalog2.last();
-                    int size3 = catalog2.getRow();
                     if (catalog2.first() == false) {
                         recommend = getRecommend(email);
                     }
                     else {
+                        catalog2.last();
+                        int size3 = catalog2.getRow();
                         int_random = rand.nextInt(size3) + 1;
                         catalog2.absolute(int_random);
                         recommend = catalog2.getString("product_id");
                     }
                 } else {
+                    catalog.last();
+                    int size2 = catalog.getRow();
                     int_random = rand.nextInt(size2) + 1;
                     catalog.absolute(int_random);
                     recommend = catalog.getString("product_id");
