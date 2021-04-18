@@ -126,7 +126,7 @@ public class Orders extends Database{
             sb.append("product_id");
             sb.append(",");
             sb.append("quantity_sold");
-            sb.append(",");
+            sb.append("\r\n");
 
             String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
             PreparedStatement ps = connection.prepareStatement(query);
