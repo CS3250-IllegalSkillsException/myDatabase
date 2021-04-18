@@ -26,7 +26,7 @@ public class BestCustomer extends Database{
 				String emails = set.getString("cust_email");
 				String newCust = "INSERT IGNORE INTO customers (email, purchased) VALUES (?,?) ";
 				PreparedStatement statement3 = connection.prepareStatement(newCust);
-				String sql = "SELECT cust_email, SUM(subtotal) AS purchased FROM orders WHERE cust_email = '"+emails+"'";
+				String sql = "SELECT cust_email, SUM(subtotal) AS purchased FROM orders WHERE cust_email = '"+emails+"' ORDER BY SUM(subtotal)";
 				PreparedStatement s2 = connection.prepareStatement(sql);
 				ResultSet rs = s2.executeQuery();
 				while(rs.next()) {
