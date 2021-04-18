@@ -5,6 +5,9 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Random;
 import java.util.Scanner;
+
+import com.mysql.cj.protocol.Resultset;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -594,6 +597,26 @@ public class Orders extends Database{
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
                 ResultSet catalog = statement2.executeQuery();
                 catalog.last();
+                int size2 = catalog.getRow();
+                if  (size2 == 0) {
+                    String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + catalog.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + catalog.getString("order_id") + "')";
+                    PreparedStatement statement3 = connection.prepareStatement(sqlQuery3);
+                    ResultSet catalog2 = statement3.executeQuery();
+                    catalog2.last();
+                    int size3 = catalog2.getRow();
+                    if (size3 == 0) {
+                        recommend = getRecommend(email);
+                    }
+                    else {
+                        int_random = rand.nextInt(size3) + 1;
+                        catalog2.absolute(int_random);
+                        recommend = catalog2.getString("product_id");
+                    }
+                } else {
+                    int_random = rand.nextInt(size2) + 1;
+                    catalog.absolute(int_random);
+                    recommend = catalog.getString("product_id");
+                }
                 int_random = rand.nextInt(catalog.getRow()) + 1;
                 catalog.absolute(int_random);
                 recommend = catalog.getString("product_id");
