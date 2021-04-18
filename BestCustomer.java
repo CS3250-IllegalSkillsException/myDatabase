@@ -58,7 +58,7 @@ public class BestCustomer extends Database{
 	            sb.append("Email");
 	            sb.append(",");
 	            sb.append("Purchased");
-	            sb.append(",");
+	            sb.append("\r\n");
 	            String query = "select * from customers ORDER BY purchased DESC";
 	            PreparedStatement ps = connection.prepareStatement(query);
 	            rs = ps.executeQuery();
