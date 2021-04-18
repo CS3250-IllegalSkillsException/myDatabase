@@ -582,11 +582,11 @@ public class Orders extends Database{
         String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + email + "'";
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
         try{
-            PreparedStatement statement = connection.prepareStatement(sqlQuery);
+            PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet customers = statement.executeQuery();
             customers.last();
             int size = customers.getRow();
-            if (size == 0){
+            if (customers.first() == false){
                 recommend = getRecommend(email);
             } else {
                 Random rand = new Random();
@@ -594,17 +594,17 @@ public class Orders extends Database{
                 customers.absolute(int_random);
                 String date = df.format(customers.getDate("date"));
                 String sqlQuery2 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND date(date) = '" + date + "' AND product_id != '" + product_id + "'";
-                PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
+                PreparedStatement statement2 = connection.prepareStatement(sqlQuery2, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery();
                 catalog.last();
                 int size2 = catalog.getRow();
-                if  (size2 == 0) {
-                    String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + catalog.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + catalog.getString("order_id") + "')";
-                    PreparedStatement statement3 = connection.prepareStatement(sqlQuery3);
+                if  (catalog.first() == false) {
+                    String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + customers.getString("order_id") + "')";
+                    PreparedStatement statement3 = connection.prepareStatement(sqlQuery3, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                     ResultSet catalog2 = statement3.executeQuery();
                     catalog2.last();
                     int size3 = catalog2.getRow();
-                    if (size3 == 0) {
+                    if (catalog2.first() == false) {
                         recommend = getRecommend(email);
                     }
                     else {
@@ -617,9 +617,6 @@ public class Orders extends Database{
                     catalog.absolute(int_random);
                     recommend = catalog.getString("product_id");
                 }
-                int_random = rand.nextInt(catalog.getRow()) + 1;
-                catalog.absolute(int_random);
-                recommend = catalog.getString("product_id");
             }
             return recommend;
         } catch (SQLException ex) {

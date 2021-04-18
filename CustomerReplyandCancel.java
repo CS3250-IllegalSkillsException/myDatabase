@@ -101,8 +101,9 @@ public class CustomerReplyandCancel {
 		//produce remarketing email
 		String sqlQuery = "SELECT * FROM inventory WHERE product_id = '" + product_id + "'";
 		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet product = statement.executeQuery();
+			product.first();
 			String body = "Thank you for shopping with us!\n"
 					+ "Here's another product that you might like!\n"
 					+ "-----------------------------------\n"
