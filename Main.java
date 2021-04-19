@@ -261,6 +261,7 @@ public class Main {
         Orders db = new Orders(genericDB);
         String notDone = "";
         Orders orders = new Orders(genericDB);
+        BestCustomer customer = new BestCustomer(genericDB);
         while (!notDone.equals("N")) {
             System.out.println("Would you like to edit your CSV file? (Y/N)");
             CustomerReplyandCancel test = new CustomerReplyandCancel(db.getUsername(), db.getPassword());
@@ -368,6 +369,7 @@ public class Main {
                         orders.orderReport();
                     } else if (subOption.contentEquals("C")) {
                         // meddy method
+                    	customer.customerReport();
                     }
                 } else if (editOption.contentEquals("F")) {
                     System.out.println("Input the start date yyyy-MM-dd");
