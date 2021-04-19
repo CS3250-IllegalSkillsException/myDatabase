@@ -25,5 +25,27 @@ public class Database extends DatabaseConnection{
         return 0;
     }
 
+    public Boolean exists(String table, String column, String id){
+        String sqlQuery = "SELECT * FROM " + table + " WHERE " + column + " = '" + id + "'";
+        try{
+            PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            ResultSet verify = statement.executeQuery();
+            if (verify.first()){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
 
 }

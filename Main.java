@@ -317,6 +317,12 @@ public class Main {
                     String cust_location = input.nextLine();
                     System.out.println("Product ID: ");
                     String product_id = input.nextLine();
+                    boolean verify = db.exists("inventory", "product_id", product_id);
+                    while (!verify){
+                        System.out.println("Invalid product id. Please enter a valid product id:");
+                        product_id = input.nextLine();
+                        verify = db.exists("inventory", "product_id", product_id);
+                    }
                     System.out.println("Quantity: ");
                     String quantity = input.nextLine();
                     SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -326,8 +332,11 @@ public class Main {
                         System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
                         quantity = input.nextLine();
                     }
+                    String productRecommend = db.RemarketRecommend(product_id, cust_email);
                     db.insertOrders(date, cust_email, cust_location, product_id, quantity);
                     test.customerConfirm(cust_email, date, product_id, quantity, cust_location);
+                    test.customerRecommend(cust_email, productRecommend);
+
                 } else if (editOption.contentEquals("C")) {
                     System.out.println("-----------Cancel Order-----------");
                     System.out.println("Order ID: ");

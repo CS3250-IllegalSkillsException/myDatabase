@@ -97,6 +97,30 @@ public class CustomerReplyandCancel {
 		sendEmail(cust_email, "Order Cancellation", body);
 	}
 
+	public void customerRecommend(String cust_email, String product_id){
+		//produce remarketing email
+		String sqlQuery = "SELECT * FROM inventory WHERE product_id = '" + product_id + "'";
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			ResultSet product = statement.executeQuery();
+			product.first();
+			String body = "Thank you for shopping with us!\n"
+					+ "Here's another product that you might like!\n"
+					+ "-----------------------------------\n"
+					+ "Product ID: " + product_id + "\n"
+					+ "Sale Price: " + product.getString("sale_price") + "\n"
+					+ "Supplier ID: " + product.getString("supplier_id");
+			sendEmail(cust_email, "Thanks for your purchase!", body);
+		} catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+	}
+
 	public boolean withinCancellatioWindow(String orderDate) throws ParseException  {
 		//check if timeStamp is within cancel time
 		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

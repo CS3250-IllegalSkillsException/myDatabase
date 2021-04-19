@@ -2,8 +2,14 @@ import java.io.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.Random;
 import java.util.Scanner;
+
+import com.mysql.cj.protocol.Resultset;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class Orders extends Database{
 
@@ -561,7 +567,7 @@ public class Orders extends Database{
                     if (product_id.contentEquals("Error.")){
                         output = "Error.";
                     } else {
-                        output = "Here's a product purchased in your area!\nProduct ID: " + product_id;
+                        output = product_id;
                     }
                 } else {
                     // Get nearest 10 orders closest to customer zipcode
@@ -573,7 +579,7 @@ public class Orders extends Database{
                     if (product_id.contentEquals("Error.")){
                         output = "Error.";
                     } else {
-                        output = "Here's a product purchased near your area!\nProduct ID: " + product_id;
+                        output = product_id;
                     }
                 }
             } else {
@@ -586,7 +592,7 @@ public class Orders extends Database{
                 if (product_id.contentEquals("Error.")){
                     output = "Error.";
                 } else {
-                    output = "Looks like you haven't made a purchase yet. Here's something to get you started!\nProduct ID: " + product_id;
+                    output = product_id;
                 }
             }
             return output;
@@ -600,6 +606,61 @@ public class Orders extends Database{
         }
         return "Error.";
     }
+
+    public String RemarketRecommend(String product_id, String email){
+        String recommend;
+        String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + email + "'";
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+        try{
+            PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            ResultSet customers = statement.executeQuery();
+            if (customers.first() == false){
+                recommend = getRecommend(email);
+            } else {
+                customers.last();
+                int size = customers.getRow();
+                Random rand = new Random();
+                int int_random = rand.nextInt(size) + 1;
+                customers.absolute(int_random);
+                String date = df.format(customers.getDate("date"));
+                String sqlQuery2 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND date(date) = '" + date + "' AND product_id != '" + product_id + "'";
+                PreparedStatement statement2 = connection.prepareStatement(sqlQuery2, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                ResultSet catalog = statement2.executeQuery();
+                if  (catalog.first() == false) {
+                    String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + customers.getString("order_id") + "')";
+                    PreparedStatement statement3 = connection.prepareStatement(sqlQuery3, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                    ResultSet catalog2 = statement3.executeQuery();
+                    if (catalog2.first() == false) {
+                        recommend = getRecommend(email);
+                    }
+                    else {
+                        catalog2.last();
+                        int size3 = catalog2.getRow();
+                        int_random = rand.nextInt(size3) + 1;
+                        catalog2.absolute(int_random);
+                        recommend = catalog2.getString("product_id");
+                    }
+                } else {
+                    catalog.last();
+                    int size2 = catalog.getRow();
+                    int_random = rand.nextInt(size2) + 1;
+                    catalog.absolute(int_random);
+                    recommend = catalog.getString("product_id");
+                }
+            }
+            return recommend;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return "Error";
+    }
+
+
 
     public String getUnder20(int page){
         String sqlQuery = "SELECT * FROM inventory WHERE sale_price <= 20";
