@@ -14,6 +14,8 @@ public class CustomerReplyandCancel {
     private String username;
     private String password;
     private Connection connection;
+	private final DataGovernance governance = new DataGovernance();
+
 	
 	public CustomerReplyandCancel(String user, String pass){
         username = user;

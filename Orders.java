@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public class Orders extends Database{
 
+    private final DataGovernance governance = new DataGovernance();
+
     public Orders(Database db){
         super(db.getUsername(),db.getPassword());
     }
@@ -35,7 +37,7 @@ public class Orders extends Database{
                 statement.setInt(1, orderId);
                 String[] data = lineText.split(",");
                 statement.setString(2, data[0]);
-                statement.setString(3, data[1]);
+                statement.setString(3, ""+governance.getHash(data[1],connection));
                 statement.setString(4, data[2]);
                 statement.setString(5, data[3]);
                 statement.setString(6, data[4]);
@@ -110,7 +112,8 @@ public class Orders extends Database{
                 sb.append(",");
                 sb.append(rs.getString("date"));
                 sb.append(",");
-                sb.append(rs.getString("cust_email"));
+                String cust_email = rs.getString("cust_email");
+                sb.append(governance.unHash(cust_email,connection));
                 sb.append(",");
                 sb.append(rs.getString("cust_location"));
                 sb.append(",");
@@ -176,17 +179,21 @@ public class Orders extends Database{
                 int quantity = Integer.parseInt(product.getString("quantity"));
                 String updateQ = String.valueOf(quantity - Integer.parseInt(product_quantity));
                 if(Integer.parseInt(product_quantity) <= quantity){
-                    String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+                    String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     String sql2 = "UPDATE inventory SET quantity = ? WHERE product_id = ?";
                     PreparedStatement statement2 = connection.prepareStatement(sql2);
                     int orderID = getNumEntries() + 1;
                     statement.setInt(1, orderID);
                     statement.setString(2, date);
-                    statement.setString(3, cust_email);
+                    statement.setString(3, ""+governance.getHash(cust_email,connection));
                     statement.setString(4, cust_location);
                     statement.setString(5, product_id);
                     statement.setString(6, product_quantity);
+                    int quant = Integer.parseInt(product_quantity);
+                    double subtotal = getSubtotal(product_id, quant);
+                    statement.setDouble(7,subtotal);
+
                     statement2.setString(1, updateQ);
                     statement2.setString(2, product_id);
                     // execute the remaining queries
@@ -547,6 +554,8 @@ public class Orders extends Database{
                             String product_id = results2.getString("product_id");
                             int product_quantity = results2.getInt("product_quantity");
                             String order_id = results2.getString("order_id");
+
+                            cust_email = governance.unHash(cust_email,connection);
                             System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", date, cust_email, cust_location, product_id, product_quantity, order_id);
 
                         }
