@@ -578,7 +578,7 @@ public class Orders extends Database{
     }
 
     public String getRecommend(String email){
-        String sqlQuery3 = "SELECT cust_email, cust_location, product_id, product_quantity FROM orders WHERE cust_email = '" + email + "'";
+        String sqlQuery3 = "SELECT cust_email, cust_location, product_id, product_quantity FROM orders WHERE cust_email = '" + governance.getHash(email,connection) + "'";
         String output = "";
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery3);
@@ -587,7 +587,7 @@ public class Orders extends Database{
             if(verify.next()){
                 // Check if there are any other orders in the same location
                 int zipcode = verify.getInt("cust_location");
-                String sqlQuery4 = "SELECT product_id, product_quantity FROM orders WHERE cust_location = " + zipcode +  " AND cust_email != '" + email + "'";
+                String sqlQuery4 = "SELECT product_id, product_quantity FROM orders WHERE cust_location = " + zipcode +  " AND cust_email != '" + governance.getHash(email,connection) + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery4, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery(sqlQuery4);
                 if(catalog.next()){
