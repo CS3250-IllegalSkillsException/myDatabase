@@ -523,7 +523,7 @@ public class Orders extends Database{
                         if (searchCustDate != null) {
                             sqlQuery2 += " date = '" + searchCustDate + "'";
                         } else if (searchCustEmail != null) {
-                            sqlQuery2 += " cust_email = '" + searchCustEmail + "'";
+                            sqlQuery2 += " cust_email = '" + governance.getHash(searchCustEmail,connection) + "'";
                         } else if (searchCustLoc != null) {
                             sqlQuery2 += " cust_location = '" + searchCustLoc + "'";
                         } else if (searchCustPID != null) {
@@ -638,7 +638,7 @@ public class Orders extends Database{
 
     public String RemarketRecommend(String product_id, String email){
         String recommend;
-        String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + email + "'";
+        String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + governance.getHash(email,connection) + "'";
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
