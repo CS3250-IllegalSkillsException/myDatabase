@@ -11,8 +11,6 @@ public class Users extends Database{
         super(db.getUsername(),db.getPassword());
     }
 
-    private final DataGovernance hashing = new DataGovernance();
-
     public void insertUser(String user_Id, int hash_User, int hash_Pass, boolean isAdmin) {
         try {
             String sql = "INSERT INTO users (user_id, hash_User,hash_Pass, isAdmin) VALUES (?, ?, ?,?)";
