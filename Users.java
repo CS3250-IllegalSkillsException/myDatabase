@@ -38,7 +38,7 @@ public class Users extends Database{
 
     public boolean userExists(String email) {
         try {
-            int hash_User = hashing.getHash(email,getConnection());
+            int hash_User = email.hashCode();
             String queryCheck = "SELECT * from users WHERE hash_User = '" + hash_User + "'";
             PreparedStatement statement = connection.prepareStatement(queryCheck);
             ResultSet set = statement.executeQuery(queryCheck);
@@ -61,7 +61,7 @@ public class Users extends Database{
 
     public boolean passExists(String password) {
         try{
-            int hash_Pass = hashing.getHash(password,getConnection());
+            int hash_Pass = password.hashCode();
             String sql = "SELECT hash_Pass FROM users WHERE hash_Pass= '" + hash_Pass + "'";
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet set = statement.executeQuery(sql);
