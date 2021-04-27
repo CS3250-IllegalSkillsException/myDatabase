@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public class Orders extends Database{
 
+    private final DataGovernance governance = new DataGovernance();
+
     public Orders(Database db){
         super(db.getUsername(),db.getPassword());
     }
@@ -35,7 +37,7 @@ public class Orders extends Database{
                 statement.setInt(1, orderId);
                 String[] data = lineText.split(",");
                 statement.setString(2, data[0]);
-                statement.setString(3, data[1]);
+                statement.setString(3, ""+governance.getHash(data[1],connection));
                 statement.setString(4, data[2]);
                 statement.setString(5, data[3]);
                 statement.setString(6, data[4]);
@@ -110,7 +112,8 @@ public class Orders extends Database{
                 sb.append(",");
                 sb.append(rs.getString("date"));
                 sb.append(",");
-                sb.append(rs.getString("cust_email"));
+                String cust_email = rs.getString("cust_email");
+                sb.append(governance.unHash(cust_email,connection));
                 sb.append(",");
                 sb.append(rs.getString("cust_location"));
                 sb.append(",");
@@ -176,17 +179,21 @@ public class Orders extends Database{
                 int quantity = Integer.parseInt(product.getString("quantity"));
                 String updateQ = String.valueOf(quantity - Integer.parseInt(product_quantity));
                 if(Integer.parseInt(product_quantity) <= quantity){
-                    String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity) VALUES (?, ?, ?, ?, ?, ?)";
+                    String sql = "INSERT INTO orders (order_id, date, cust_email, cust_location, product_id, product_quantity, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     String sql2 = "UPDATE inventory SET quantity = ? WHERE product_id = ?";
                     PreparedStatement statement2 = connection.prepareStatement(sql2);
                     int orderID = getNumEntries() + 1;
                     statement.setInt(1, orderID);
                     statement.setString(2, date);
-                    statement.setString(3, cust_email);
+                    statement.setString(3, ""+governance.getHash(cust_email,connection));
                     statement.setString(4, cust_location);
                     statement.setString(5, product_id);
                     statement.setString(6, product_quantity);
+                    int quant = Integer.parseInt(product_quantity);
+                    double subtotal = getSubtotal(product_id, quant);
+                    statement.setDouble(7,subtotal);
+
                     statement2.setString(1, updateQ);
                     statement2.setString(2, product_id);
                     // execute the remaining queries
@@ -516,7 +523,7 @@ public class Orders extends Database{
                         if (searchCustDate != null) {
                             sqlQuery2 += " date = '" + searchCustDate + "'";
                         } else if (searchCustEmail != null) {
-                            sqlQuery2 += " cust_email = '" + searchCustEmail + "'";
+                            sqlQuery2 += " cust_email = '" + governance.getHash(searchCustEmail,connection) + "'";
                         } else if (searchCustLoc != null) {
                             sqlQuery2 += " cust_location = '" + searchCustLoc + "'";
                         } else if (searchCustPID != null) {
@@ -547,6 +554,8 @@ public class Orders extends Database{
                             String product_id = results2.getString("product_id");
                             int product_quantity = results2.getInt("product_quantity");
                             String order_id = results2.getString("order_id");
+
+                            cust_email = governance.unHash(cust_email,connection);
                             System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", date, cust_email, cust_location, product_id, product_quantity, order_id);
 
                         }
@@ -569,7 +578,7 @@ public class Orders extends Database{
     }
 
     public String getRecommend(String email){
-        String sqlQuery3 = "SELECT cust_email, cust_location, product_id, product_quantity FROM orders WHERE cust_email = '" + email + "'";
+        String sqlQuery3 = "SELECT cust_email, cust_location, product_id, product_quantity FROM orders WHERE cust_email = '" + governance.getHash(email,connection) + "'";
         String output = "";
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery3);
@@ -578,7 +587,7 @@ public class Orders extends Database{
             if(verify.next()){
                 // Check if there are any other orders in the same location
                 int zipcode = verify.getInt("cust_location");
-                String sqlQuery4 = "SELECT product_id, product_quantity FROM orders WHERE cust_location = " + zipcode +  " AND cust_email != '" + email + "'";
+                String sqlQuery4 = "SELECT product_id, product_quantity FROM orders WHERE cust_location = " + zipcode +  " AND cust_email != '" + governance.getHash(email,connection) + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery4, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery(sqlQuery4);
                 if(catalog.next()){
@@ -629,7 +638,7 @@ public class Orders extends Database{
 
     public String RemarketRecommend(String product_id, String email){
         String recommend;
-        String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + email + "'";
+        String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + governance.getHash(email,connection) + "'";
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -739,7 +748,7 @@ public class Orders extends Database{
     public String getOrders(String email){
         //Note that we currently use plaintext emails in the orders database. This code will be changed when we switch to hashed ones.
         String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
-                + " cust_email = '" + email + "'";
+                + " cust_email = '" + governance.getHash(email,connection) + "'";
         String output = "Orders:\n";
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery2);
@@ -750,6 +759,7 @@ public class Orders extends Database{
                 int cust_location = results.getInt("cust_location");
                 String product_id = results.getString("product_id");
                 int product_quantity = results.getInt("product_quantity");
+                cust_email = email;
                 //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
                 /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
                         + product_id + " Quantity: " + product_quantity;*/

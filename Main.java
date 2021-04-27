@@ -183,11 +183,9 @@ public class Main {
         input.nextLine();
         switch (choice) {
             case 1:
-                String adminPass = "rootUser";
-                System.out.println("Please input Admin password: ");
+                System.out.println("Is this an admin user? (Y/N): ");
                 String pass1 = input.nextLine();
-                if (pass1.contentEquals(adminPass)) {
-                    boolean isAdmin = true;
+                if (pass1.contentEquals("Y") || pass1.contentEquals("y")) {
                     System.out.println("-----New User-----");
                     System.out.println("User ID: ");
                     String newID = input.nextLine();
@@ -197,24 +195,19 @@ public class Main {
                     System.out.println("Enter Password: ");
                     String newPass = input.nextLine();
                     int pass = newPass.hashCode();
-                    db.insertUser(newID, email, pass, isAdmin);
-
-                    System.out.println("New Hashed Values");
-                    System.out.println("Hashed Email" + email);
-                    System.out.println("Hashed Password" + pass);
-
-                    //print hashed password
+                    db.insertUser(newID, email, pass, true);
                 } else {
+                    System.out.println("-----New User-----");
+                    System.out.println("User ID: ");
+                    String newID = input.nextLine();
                     boolean isAdmin = false;
-                    System.out.println("-----Access Denied-----");
-                    System.out.println("Request Sign-Up");
                     System.out.println("Enter Email: ");
                     String reqEmail = input.nextLine();
                     int reqE = reqEmail.hashCode();
                     System.out.println("Enter Password: ");
                     String reqPass = input.nextLine();
                     int reqP = reqPass.hashCode();
-                    db.insertUser("", reqE, reqP, isAdmin);
+                    db.insertUser(newID, reqE, reqP, isAdmin);
                 }
                 break;
 
@@ -306,9 +299,6 @@ public class Main {
                     System.out.println("-----------Delete Entry-----------");
                     System.out.println("Order ID: ");
                     String order_id = input.nextLine();
-                    System.out.println("Email: ");
-                    String cust_email = input.nextLine();
-                    String orderDate = test.findDate(order_id);
                     db.deleteOrders(order_id);
                 } else if (editOption.contentEquals("P")) {
                     System.out.println("-----------New Order-----------");

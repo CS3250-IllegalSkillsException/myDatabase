@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class BestCustomer extends Database{
-	
+
+	private final DataGovernance governance = new DataGovernance();
+
 	public BestCustomer(Database db) throws SQLException {
 		super(db.getUsername(),db.getPassword());
 	}
@@ -63,7 +65,8 @@ public class BestCustomer extends Database{
 	            PreparedStatement ps = connection.prepareStatement(query);
 	            rs = ps.executeQuery();
 	            while (rs.next()) {
-	                sb.append(rs.getString("email"));
+					String cust_email = rs.getString("email");
+	                sb.append(governance.unHash(cust_email,connection));
 	                sb.append(",");
 	                sb.append(rs.getString("purchased"));
 	                sb.append("\r\n");
