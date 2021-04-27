@@ -748,7 +748,7 @@ public class Orders extends Database{
     public String getOrders(String email){
         //Note that we currently use plaintext emails in the orders database. This code will be changed when we switch to hashed ones.
         String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
-                + " cust_email = '" + email + "'";
+                + " cust_email = '" + governance.getHash(email,connection) + "'";
         String output = "Orders:\n";
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery2);
@@ -759,6 +759,7 @@ public class Orders extends Database{
                 int cust_location = results.getInt("cust_location");
                 String product_id = results.getString("product_id");
                 int product_quantity = results.getInt("product_quantity");
+                cust_email = email;
                 //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
                 /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
                         + product_id + " Quantity: " + product_quantity;*/
