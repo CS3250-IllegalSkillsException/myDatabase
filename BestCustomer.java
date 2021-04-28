@@ -25,7 +25,7 @@ public class BestCustomer extends Database{
 			ResultSet set = statement.executeQuery(email);
 			String home = System.getProperty("user.home");
 			int days;
-		    System.out.println("This tool allows you to generate a customer report for a given amount of days. \nFor example, entering '7' will generate a report for the best-selling products in the last 7 days.");
+		    System.out.println("This tool allows you to generate a customer report for a given amount of days. \nFor example, entering '7' will generate a report for the best customers in the last 7 days.");
 		    System.out.println("Enter number of days to generate report on: ");
 		    Scanner dayInput = new Scanner(System.in);
 		    days = dayInput.nextInt();
@@ -34,7 +34,7 @@ public class BestCustomer extends Database{
 				String emails = set.getString("cust_email");
 				String newCust = "INSERT IGNORE INTO customers (email, purchased) VALUES (?,?) ";
 				PreparedStatement statement3 = connection.prepareStatement(newCust);
-				String sql = "SELECT cust_email, SUM(subtotal) AS purchased FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL - "+days+" DAY) GROUP BY cust_email ORDER BY SUM(subtotal) DESC";
+				String sql = "SELECT cust_email, SUM(subtotal) AS purchased FROM orders WHERE cust_email = '"+emails+"' AND date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) ";
 				PreparedStatement s2 = connection.prepareStatement(sql);
 				ResultSet rs = s2.executeQuery();
 				while(rs.next()) {

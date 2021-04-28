@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.io.Console;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,13 +9,13 @@ import java.util.Date;
 public class Main {
     private static final Boolean True = null;
 
-    public static void main(String[] args) throws SQLException, ParseException {
+    public static void main(String[] args) throws SQLException, ParseException, FileNotFoundException {
         menuLoop();
     }
 
     static Scanner input = new Scanner(System.in);
 
-    public static void menuLoop() throws ParseException, SQLException {
+    public static void menuLoop() throws ParseException, SQLException, FileNotFoundException {
         String username = null;
         String password = null;
         String menuConfirm = "Y";
@@ -250,7 +251,7 @@ public class Main {
         }
     }
 
-    public static void ordersTable(Database genericDB) throws ParseException, SQLException {
+    public static void ordersTable(Database genericDB) throws ParseException, SQLException, FileNotFoundException {
         Orders db = new Orders(genericDB);
         String notDone = "";
         Orders orders = new Orders(genericDB);
@@ -358,7 +359,6 @@ public class Main {
                     } else if (subOption.contentEquals("B")) {
                         orders.orderReport();
                     } else if (subOption.contentEquals("C")) {
-                        // meddy method
                     	customer.customerReport();
                     }
                 } else if (editOption.contentEquals("F")) {
