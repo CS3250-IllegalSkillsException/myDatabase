@@ -131,7 +131,14 @@ public class Orders extends Database{
         }
     }
 
+    /*
+    Uses string builder and SQL statement to build a temporary table with just product IDs and quantities sold, using
+    data from the Orders table within the main db. It also sorts the table so the products that have sold the most will
+    appear at the top. Detailed instructions included for easier understanding by users.
+    Downloaded file goes straight to machine's local Downloads folder.
+     */
     public void orderReport() {
+        // needed to access machine's local files
         String home = System.getProperty("user.home");
         int days;
         System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' will generate a report for the best-selling products in the last 7 days.");
@@ -140,7 +147,7 @@ public class Orders extends Database{
         days = dayInput.nextInt();
 
         try {
-            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\OrderReport.csv"));
+            PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\BestProductOrderReport.csv"));
             StringBuilder sb = new StringBuilder();
             ResultSet rs = null;
             sb.append("product_id");
@@ -148,6 +155,7 @@ public class Orders extends Database{
             sb.append("quantity_sold");
             sb.append("\r\n");
 
+            // building the temp table with just product IDs and quantities sold. This tool should work normally even if table columns are changed (as long as product ID and quantities sold are still there)
             String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
@@ -160,7 +168,7 @@ public class Orders extends Database{
             }
             pw.write(sb.toString());
             pw.close();
-            System.out.println(days + " day report export complete. Find OrderReport.csv in your Downloads folder.");
+            System.out.println(days + " day report export complete. Find BestProductsOrderReport.csv in your Downloads folder.");
 
         } catch (FileNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -238,6 +246,12 @@ public class Orders extends Database{
         }
     }
 
+    /*
+    Search function allows you to search either the Inventory or Orders tables for specific entries using filters
+    set by the user. User can set one or multiple filters to be applied before displaying matching entries,
+    using a string builder and SQL statements to generate results. Method is split into 2 cases, one for each table.
+    Had to be different due to differing column names.
+     */
     public void search() {
 
 

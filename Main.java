@@ -55,6 +55,10 @@ public class Main {
                 System.out.println("Username: ");
                 username = input.nextLine();
 
+                /* This is the console bypass that will allow us to use the Console within the command
+                line to hide inputted passwords. If Console class cannot be used (running within many IDEs)
+                it will default to not hiding the password. */
+
                 // for running in command line
                 if (console != null) {
                     char[] pwd = console.readPassword("Password: ");
