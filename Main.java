@@ -176,14 +176,14 @@ public class Main {
     public static void usersTable(Database genericDB) {
         Users db = new Users(genericDB);
       	System.out.println("Would you like to: \n" +
-				        "1. Create a new user \n" +
-				        "2. Find User Email \n" +
-				        "3. Export CSV file \n" +
-                "4. Exit menu");
-        int choice = input.nextInt();
+				        "A. Create a new user \n" +
+				        "B. Find User Email \n" +
+				        "C. Export CSV file \n" +
+      			"X. Exit menu");
+        char choice = input.next().charAt(0);
         input.nextLine();
         switch (choice) {
-            case 1:
+            case 'A':
                 System.out.println("Is this an admin user? (Y/N): ");
                 String pass1 = input.nextLine();
                 if (pass1.contentEquals("Y") || pass1.contentEquals("y")) {
@@ -212,7 +212,7 @@ public class Main {
                 }
                 break;
 
-            case 2:
+            case 'B':
                 System.out.println("-----Login Info-----");
                 System.out.println("Email: ");
                 String logEmail = input.nextLine();
@@ -241,11 +241,11 @@ public class Main {
                     System.out.println("Email not found: Please sign up or see Admin");
                 }
                 break;
-            case 3:
+            case 'C':
 				        System.out.println("-----------Exporting CSV-----------");
 				        db.exportUsersCSV();
 				        break;
-            case 4:
+            case 'X':
 				        System.out.println("Leaving menu....\n");
 			          break;
         }
