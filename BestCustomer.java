@@ -7,6 +7,8 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class BestCustomer extends Database{
+
+	private final DataGovernance governance = new DataGovernance();
 	
 	public BestCustomer(Database db) throws SQLException {
 		super(db.getUsername(),db.getPassword());
@@ -45,25 +47,32 @@ public class BestCustomer extends Database{
 			        statement3.executeBatch();
 			        connection.commit();
 				}
-				PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\CustomerOrderReport.csv"));
-	            StringBuilder sb = new StringBuilder();
-	            ResultSet rrs = null;
-	            sb.append("Email");
-	            sb.append(",");
-	            sb.append("Purchased");
-	            sb.append("\r\n");
-	            String query = "SELECT email, purchased FROM customers ORDER BY purchased DESC";
-	            PreparedStatement ps = connection.prepareStatement(query);
-	            rrs = ps.executeQuery();
-	            while (rrs.next()) {
-	                sb.append(rrs.getString("email"));
-	                sb.append(",");
-	                sb.append(rrs.getString("purchased"));
-	                sb.append("\r\n");
-	            }
-	            pw.write(sb.toString());
-	            pw.close();
-			}	
+			}
+			PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\CustomerOrderReport.csv"));
+			StringBuilder sb = new StringBuilder();
+			ResultSet rrs = null;
+			sb.append("Email");
+			sb.append(",");
+			sb.append("Purchased");
+			sb.append("\r\n");
+			String query = "SELECT email, purchased FROM customers ORDER BY purchased DESC";
+			PreparedStatement ps = connection.prepareStatement(query);
+			rrs = ps.executeQuery();
+
+			System.out.println("How many best customers would you like to see?");
+			System.out.println("Enter number of customers to rank: ");
+			Scanner numInput = new Scanner(System.in);
+			int numCustomers = numInput.nextInt();
+
+			for(int i = 0; i < numCustomers; i++){
+				rrs.next();
+				sb.append(governance.unHash(rrs.getString("email"),connection));
+				sb.append(",");
+				sb.append(rrs.getString("purchased"));
+				sb.append("\r\n");
+			}
+			pw.write(sb.toString());
+			pw.close();
 			System.out.println(days + " day report export complete. Find CustomerOrderReport.csv in your Downloads folder.");
 		} catch (FileNotFoundException e) {
             e.printStackTrace();
