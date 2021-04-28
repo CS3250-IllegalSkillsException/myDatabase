@@ -71,26 +71,26 @@ public class Main {
                 String databaseConfirm = "Y";
                 while (databaseConfirm.contentEquals("Y") | databaseConfirm.contentEquals("y")) {
                     System.out.println("Which table would you like to edit? \n"
-                            + " 1. Inventory Table\n"
-                            + " 2. Users Table\n"
-                            + " 3. Orders Table");
-                    int choice = input.nextInt();
+                            + " A. Inventory Table\n"
+                            + " B. Users Table\n"
+                            + " C. Orders Table");
+                    char choice = input.next().charAt(0);
                     input.nextLine();
                     switch (choice) {
-                        case 1:
+                        case 'A':
                             inventoryTable(data);
                             System.out.println("Would you like to keep editing the current database? (Y/N)");
                             databaseConfirm = input.nextLine();
                             break;
 
-                        case 2:
+                        case 'B':
                             usersTable(data);
                             System.out.println("Would you like to keep editing the current database? (Y/N)");
                             databaseConfirm = input.nextLine();
 
                             break;
 
-                        case 3:
+                        case 'C':
                             ordersTable(data);
                             System.out.println("Would you like to keep editing the current database? (Y/N)");
                             databaseConfirm = input.nextLine();
