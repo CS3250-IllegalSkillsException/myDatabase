@@ -79,13 +79,17 @@ public class Users extends Database{
         }
         return false;
     }
-
+/* This function will export a CSV file of the Users table by utilizing a string builder and SQL statements.
+If any new columns are added to this table, this method will need to be adjusted with the updated column names.
+Downloaded file goes straight to the machine's local Downloads folder.
+ */
     public void exportUsersCSV() {
         String home = System.getProperty("user.home");
         try {
             PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\Users.csv"));
             StringBuilder sb = new StringBuilder();
             ResultSet rs = null;
+            // update here if table columns are added or changed
             sb.append("user_id");
             sb.append(",");
             sb.append("hash_User");
@@ -99,6 +103,7 @@ public class Users extends Database{
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
 
+            // and here
             while (rs.next()) {
                 sb.append(rs.getString("user_id"));
                 sb.append(",");

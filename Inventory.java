@@ -47,13 +47,17 @@ public class Inventory extends Database {
             }
         }
     }
-
+/*  This function uses a string builder to create and download a csv copy of the Inventory table.
+  It is specific to the Inventory table since the column names are different on each table. If any changes
+  are made to the Inventory table columns, column names will need adjusting here as well.
+  The downloaded file can be found in local Downloads folder. */
     public void exportInvCSV() {
         String home = System.getProperty("user.home");
         try {
             PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\Inventory.csv"));
             StringBuilder sb = new StringBuilder();
             ResultSet rs = null;
+            // update here if table columns are changed
             sb.append("product_id");
             sb.append(",");
             sb.append("quantity");
@@ -69,6 +73,7 @@ public class Inventory extends Database {
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
 
+            // and here
             while (rs.next()) {
                 sb.append(rs.getString("product_id"));
                 sb.append(",");
@@ -176,6 +181,9 @@ public class Inventory extends Database {
         }
     }
 
+    /* This function manipulates the data in the db tables, allowing the user to change quantities, costs/prices, or IDs.
+    Each case statement is for each value that can be modified using SQL statements.
+     */
     public void modify() {
         PreparedStatement preparedStatement;
         Scanner scanner = new Scanner(System.in);
@@ -189,6 +197,7 @@ public class Inventory extends Database {
                 int column = scanner.nextInt();
                 switch (column) {
 
+                    // quantity
                     case 1:
                         System.out.println("Enter new quantity: ");
                         int newQuantity = scanner.nextInt();
@@ -204,6 +213,7 @@ public class Inventory extends Database {
                         }
                         break;
 
+                    // wholesale cost
                     case 2:
                         System.out.println("Enter new Wholesale Cost: ");
                         double newWSCost = scanner.nextDouble();
@@ -219,6 +229,7 @@ public class Inventory extends Database {
                         }
                         break;
 
+                    // sale price
                     case 3:
                         System.out.println("Enter new Sale Price: ");
                         double newSalePrice = scanner.nextDouble();
@@ -234,6 +245,7 @@ public class Inventory extends Database {
                         }
                         break;
 
+                    // supplier ID
                     case 4:
                         System.out.println("Enter new Supplier ID: ");
                         String newSupplierID = scanner.next();
