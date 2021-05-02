@@ -16,7 +16,7 @@ public class CustomerReplyandCancel {
     private Connection connection;
 	private final DataGovernance governance = new DataGovernance();
 
-	
+	//connection to database
 	public CustomerReplyandCancel(String user, String pass){
         username = user;
         password = pass;
@@ -38,7 +38,7 @@ public class CustomerReplyandCancel {
         }
         return true;
     }
-    
+    /*This function sends email when triggered from illegalskillsexception3250@gmail.com*/
 	public void sendEmail(String email, String subject, String body) {
 		String sender = "illegalskillsexception3250@gmail.com";
 		String recipient = email;
@@ -74,7 +74,7 @@ public class CustomerReplyandCancel {
 		}
 	}
 	
-	
+	//the make-up of the confirmation email
 	public void customerConfirm(String cust_email, String date, String product_id, String quantity, String cust_location) {
 		//produce confirmation email when order is made
 		String body = "Thanks you for your order!\n\n"
@@ -87,7 +87,7 @@ public class CustomerReplyandCancel {
 				+ "All orders may be cancelled within 24 hours";
 		sendEmail(cust_email, "Order Confirmation", body);
 	}
-	
+	//the make-up of the cancellation email
 	public void customerCancel(String cust_email, String orderID,String date) {
 		//produce cancellation email
 		String body = "Your order has been successfully cancelled!\n"
@@ -122,7 +122,7 @@ public class CustomerReplyandCancel {
             }
         }
 	}
-
+	//tests the cancellation window of the cancellation window
 	public boolean withinCancellatioWindow(String orderDate) throws ParseException  {
 		//check if timeStamp is within cancel time
 		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -137,7 +137,7 @@ public class CustomerReplyandCancel {
 			return false;
 		}
 	}
-	
+	//finds the date of the order
 	public String findDate(String order_id) throws SQLException {
 		PreparedStatement preparedStatement;
 		String orderDate = "SELECT date FROM orders WHERE order_id= '"

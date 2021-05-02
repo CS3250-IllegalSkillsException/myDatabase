@@ -71,7 +71,7 @@ public class Main {
                     password = input.nextLine();
                 }
                 Database data = new Database(username, password);
-
+                /* This is the menu that allows the user to select which table to manipulate */
                 String databaseConfirm = "Y";
                 while (databaseConfirm.contentEquals("Y") | databaseConfirm.contentEquals("y")) {
                     System.out.println("Which table would you like to edit? \n"
@@ -114,7 +114,7 @@ public class Main {
             System.out.println("Exiting..");
         }
     }
-
+    
     public static void inventoryTable(Database genericDB) {
         Inventory db = new Inventory(genericDB);
         String notDone = "";
