@@ -125,7 +125,7 @@ public class CustomerReplyandCancel {
 
 	public boolean withinCancellatioWindow(String orderDate) throws ParseException  {
 		//check if timeStamp is within cancel time
-		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss");
 		String currDate = temp.format(new Date());
 		
 		Date date1 = temp.parse(currDate);
