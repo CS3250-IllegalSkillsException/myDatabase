@@ -150,6 +150,7 @@ public class Main {
                     String supplier_id = input.nextLine();
                     db.insert(product_id, quantity, wholesale_cost, sale_price, supplier_id);
                 } else if (editOption.contentEquals("D")) {
+                    //Execute delete method
                     System.out.println("-----------Delete Entry-----------");
                     System.out.println("Enter Product ID: ");
                     String product_id = input.nextLine();
@@ -282,6 +283,7 @@ public class Main {
                     db.importCustomerData();
                     System.out.println("-----------Complete!-----------");
                 } else if (editOption.contentEquals("I")) {
+                    //Get new order information from user
                     System.out.println("-----------New Entry-----------");
                     System.out.println("Customer email: ");
                     String cust_email = input.nextLine();
@@ -289,22 +291,40 @@ public class Main {
                     String cust_location = input.nextLine();
                     System.out.println("Product ID: ");
                     String product_id = input.nextLine();
+                    //Verify product id exists
+                    boolean verify = db.exists("inventory", "product_id", product_id);
+                    while (!verify){
+                        System.out.println("Invalid product id. Please enter a valid product id:");
+                        product_id = input.nextLine();
+                        verify = db.exists("inventory", "product_id", product_id);
+                    }
                     System.out.println("Quantity: ");
                     String quantity = input.nextLine();
-
-                  
+                    //Get current datetime and format
                   SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String date = temp.format(new Date());
+                    //Verify positive quantity
                     while (Integer.parseInt(quantity) <= 0) {
                         System.out.println("Invalid quantity. Please enter a quantity greater than 0.");
                         quantity = input.nextLine();
                     }
+                    //Execute insertOrders method
                     db.insertOrders(date, cust_email, cust_location, product_id, quantity);
                 } else if (editOption.contentEquals("D")) {
+                    //Get order id from user
                     System.out.println("-----------Delete Entry-----------");
                     System.out.println("Order ID: ");
                     String order_id = input.nextLine();
-                    db.deleteOrders(order_id);
+                    //Verify order id exists
+                    boolean verify = db.exists("orders", "order_id", order_id);
+                    if (!verify) {
+                        System.out.println("That order id does not exist.");
+                    }
+                    else {
+                        //Execute deleteOrders method
+                        db.deleteOrders(order_id);
+                        System.out.println("Deleting Order ID: " + order_id);
+                    }
                 } else if (editOption.contentEquals("P")) {
                     System.out.println("-----------New Order-----------");
                     System.out.println("Customer email: ");
@@ -313,6 +333,7 @@ public class Main {
                     String cust_location = input.nextLine();
                     System.out.println("Product ID: ");
                     String product_id = input.nextLine();
+                    //Verify product id exists
                     boolean verify = db.exists("inventory", "product_id", product_id);
                     while (!verify){
                         System.out.println("Invalid product id. Please enter a valid product id:");
