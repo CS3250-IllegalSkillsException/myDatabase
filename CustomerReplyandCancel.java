@@ -42,7 +42,7 @@ public class CustomerReplyandCancel {
 	public void sendEmail(String email, String subject, String body) {
 		String sender = "illegalskillsexception3250@gmail.com";
 		String recipient = email;
-		String password = "";
+		String password = "illegalskillsroot!@#";
 		
 		Properties prop = System.getProperties();
 		prop.put("mail.smtp.host", "smtp.gmail.com");
@@ -125,7 +125,7 @@ public class CustomerReplyandCancel {
 
 	public boolean withinCancellatioWindow(String orderDate) throws ParseException  {
 		//check if timeStamp is within cancel time
-		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss");
+		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String currDate = temp.format(new Date());
 		
 		Date date1 = temp.parse(currDate);

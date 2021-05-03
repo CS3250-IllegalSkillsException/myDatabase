@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import javax.security.auth.login.LoginException;
 import java.io.Console;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -144,7 +146,8 @@ public class DiscordBot extends ListenerAdapter {
                 //Gets customer email, orderID, and date
                 String email = user.getEmail();
                 String orderID = parameters[1];
-                String date = parameters[2];
+                SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String date = db.getOrderDate(email,orderID);
 
                 //Cancels customer order if within cancel period time
                 try{

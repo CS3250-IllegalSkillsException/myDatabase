@@ -851,4 +851,16 @@ public class Orders extends Database{
         return 0;
     }
 
+    public String getOrderDate(String email, String orderID){
+        try{
+            String sql = "SELECT date FROM orders WHERE order_id = '" + orderID + "' and cust_email = '" + email.hashCode() + "'";
+            PreparedStatement s2 = connection.prepareStatement(sql);
+            ResultSet rs = s2.executeQuery();
+            rs.next();
+            return rs.getString("date");
+        } catch (SQLException e){
+            return "Error.";
+        }
+    }
+
 }
