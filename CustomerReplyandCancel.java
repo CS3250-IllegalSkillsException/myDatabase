@@ -42,7 +42,7 @@ public class CustomerReplyandCancel {
 	public void sendEmail(String email, String subject, String body) {
 		String sender = "illegalskillsexception3250@gmail.com";
 		String recipient = email;
-		String password = "illegalskillsroot!@#";
+		String password = "";
 		
 		Properties prop = System.getProperties();
 		prop.put("mail.smtp.host", "smtp.gmail.com");
