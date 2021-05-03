@@ -130,6 +130,7 @@ public class Main {
                 System.out.println("[M] to modify an entry");
                 System.out.println("[R] to read an entry");
                 System.out.println("[E] to export CSV file");
+                System.out.println("[G] to generate report with filters");
                 System.out.println("[X] to leave menu");
                 String editOption = input.nextLine();
                 if (editOption.contentEquals("Q")) {
@@ -161,11 +162,14 @@ public class Main {
                     System.out.println("-----------Read Entry-----------");
                     db.read();
                 } else if (editOption.contentEquals("E")) {
-					          System.out.println("-----------Exporting CSV-----------");
-					          db.exportInvCSV();
-                } else if(editOption.contentEquals("X")) {
-						        System.out.println("\n");
-						        notDone = "N";
+                    System.out.println("-----------Exporting CSV-----------");
+                    db.exportInvCSV();
+                } else if (editOption.contentEquals("G")) {
+                    System.out.println("-----------Generate Report-----------");
+                    db.searchInventory();
+                } else if (editOption.contentEquals("X")) {
+                    System.out.println("\n");
+                    notDone = "N";
                 } else {
                     System.out.println("Invalid Response. Please enter a valid option.");
                 }
@@ -350,7 +354,7 @@ public class Main {
 
                 } else if (editOption.contentEquals("G")) {
                     System.out.println("-----------Generate Report-----------");
-                    db.search();
+                    db.searchOrders();
                 } else if (editOption.contentEquals("E")) {
                     System.out.println("What report would you like to export?");
                     System.out.println("[F] Full orders report");

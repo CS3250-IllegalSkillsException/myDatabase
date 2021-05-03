@@ -9,6 +9,7 @@ public class Inventory extends Database {
     public Inventory(Database db){
         super(db.getUsername(),db.getPassword());
     }
+    private final DataGovernance governance = new DataGovernance();
 
     public void importFromCsvFile() {
         try {
@@ -157,6 +158,182 @@ public class Inventory extends Database {
         }
     }
 
+    /*
+    Search function allows you to search the Inventory table for specific entries using filters
+    set by the user. User can set one or multiple filters to be applied before displaying matching entries,
+    using a string builder and SQL statements to generate results.
+     */
+    public void searchInventory() {
+        Scanner searchFilter = new Scanner(System.in);
+        String option = "Y";
+        System.out.println("This menu will let you add and apply a filter before displaying matching database entries. \nSet a filter to generate results. ");
+        do {
+            String searchCustDate = null;
+            String searchCustEmail = null;
+            String searchCustLoc = null;
+            String searchCustPID = null;
+            String searchCustQuant = null;
+            String searchCustOID = null;
+            do {
+                System.out.println("\nWhich filter would you like to set? \n" +
+                        "[D] Date \n" +
+                        "[E] Email address \n" +
+                        "[Z] Zip Code \n" +
+                        "[P] Product ID \n" +
+                        "[Q] Quantity \n" +
+                        "[O] Order ID");
+
+                char choice = searchFilter.next().charAt(0);
+                searchFilter.nextLine();
+                switch (choice) {
+                    case 'D':
+                        System.out.println("Enter date in form 'YYYY-MM-DD' or type X to cancel: ");
+                        searchCustDate = searchFilter.next();
+                        if (searchCustDate.matches("X")) {
+                            searchCustDate = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Date filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+
+                    case 'E':
+                        System.out.println("Enter full customer email address or type X to cancel: ");
+                        searchCustEmail = searchFilter.next();
+                        if (searchCustEmail.matches("X")) {
+                            searchCustEmail = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Customer email address filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+
+                    case 'Z':
+                        System.out.println("Enter customer zip code or type X to cancel: ");
+                        searchCustLoc = searchFilter.next();
+                        if (searchCustLoc.matches("X")) {
+                            searchCustLoc = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Customer zip code filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+
+                    case 'P':
+                        System.out.println("Enter Product ID or type X to cancel: ");
+                        searchCustPID = searchFilter.next();
+                        if (searchCustPID.matches("X")) {
+                            searchCustPID = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Product ID filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+
+                    case 'Q':
+                        System.out.println("Enter quantity purchased or type X to cancel: ");
+                        searchCustQuant = searchFilter.next();
+                        if (searchCustQuant.matches("X")) {
+                            searchCustQuant = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Quantity filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+                    case 'O':
+                        System.out.println("Enter Order ID or type X to cancel: ");
+                        searchCustOID = searchFilter.next();
+                        if (searchCustOID.matches("X")) {
+                            searchCustOID = null;
+                            System.out.println("Filter canceled.");
+                        } else {
+                            System.out.println("Order ID filter set.");
+                            System.out.println("Generating results... ");
+                            option = "N";
+                        }
+                        break;
+
+                    default:
+                        System.out.println("Invalid option");
+                        break;
+                }
+            } while (option.equals("Y"));
+
+
+            // Building the sql query string with added filter
+
+            try {
+                String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity, order_id FROM orders WHERE";
+
+                if (searchCustDate != null) {
+                    sqlQuery2 += " date = '" + searchCustDate + "'";
+                } else if (searchCustEmail != null) {
+                    sqlQuery2 += " cust_email = '" + governance.getHash(searchCustEmail, connection) + "'";
+                } else if (searchCustLoc != null) {
+                    sqlQuery2 += " cust_location = '" + searchCustLoc + "'";
+                } else if (searchCustPID != null) {
+                    sqlQuery2 += " product_id = '" + searchCustPID + "'";
+                } else if (searchCustQuant != null) {
+                    sqlQuery2 += " product_quantity = '" + searchCustQuant + "'";
+                } else if (searchCustOID != null) {
+                    sqlQuery2 += " order_id = '" + searchCustOID + "'";
+                }
+
+                PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
+
+
+                // for checking SQL query syntax
+                // System.out.println(sqlQuery + "\n");
+
+                // Display results from database
+                ResultSet results2 = statement2.executeQuery(sqlQuery2);
+
+                System.out.println("----------------------------------------------------------------------------------------------------");
+                System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Quantity", "Order ID");
+                System.out.println("----------------------------------------------------------------------------------------------------");
+
+                while (results2.next()) {
+                    String date = results2.getString("date");
+                    String cust_email = results2.getString("cust_email");
+                    int cust_location = results2.getInt("cust_location");
+                    String product_id = results2.getString("product_id");
+                    int product_quantity = results2.getInt("product_quantity");
+                    String order_id = results2.getString("order_id");
+
+                    cust_email = governance.unHash(cust_email, connection);
+                    System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", date, cust_email, cust_location, product_id, product_quantity, order_id);
+
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Error generating results. ");
+                e.printStackTrace();
+            }
+
+
+            System.out.println("------------------------------------ End of Results -----------------------------------------------");
+            System.out.println("\n");
+            System.out.println("Would you like to search again with a new filter? Y/N");
+            option = searchFilter.next();
+        } while (option.equals("Y"));
+        System.out.println("Exiting");
+    }
+
     public void insert(String product_id, String quantity, String wholesale_cost, String sale_price, String supplier_id) {
         try {
             String sql = "INSERT INTO inventory (product_id, quantity, wholesale_cost, sale_price, supplier_id) VALUES (?, ?, ?, ?, ?)";
@@ -193,12 +370,13 @@ public class Inventory extends Database {
             String loop;
             do {
                 System.out.println("Which column would you like to update?" +
-                        "\n 1. Quantity \n 2. Wholesale Cost \n 3. Sale Price \n 4. Supplier ID");
-                int column = scanner.nextInt();
-                switch (column) {
+                        "\n [Q] Quantity \n [C] Wholesale Cost \n [P] Sale Price \n [I] Supplier ID");
 
+                char choice = scanner.next().charAt(0);
+                scanner.nextLine();
+                switch (choice) {
                     // quantity
-                    case 1:
+                    case 'Q':
                         System.out.println("Enter new quantity: ");
                         int newQuantity = scanner.nextInt();
                         String quantityEdit = "UPDATE inventory SET quantity= ? WHERE product_id = ?";
@@ -214,7 +392,7 @@ public class Inventory extends Database {
                         break;
 
                     // wholesale cost
-                    case 2:
+                    case 'C':
                         System.out.println("Enter new Wholesale Cost: ");
                         double newWSCost = scanner.nextDouble();
                         String wsCostEdit = "UPDATE inventory SET wholesale_cost = ? WHERE product_id = ?";
@@ -230,7 +408,7 @@ public class Inventory extends Database {
                         break;
 
                     // sale price
-                    case 3:
+                    case 'P':
                         System.out.println("Enter new Sale Price: ");
                         double newSalePrice = scanner.nextDouble();
                         String salePriceEdit = "UPDATE inventory SET sale_price = ? WHERE product_id = ?";
@@ -246,7 +424,7 @@ public class Inventory extends Database {
                         break;
 
                     // supplier ID
-                    case 4:
+                    case 'I':
                         System.out.println("Enter new Supplier ID: ");
                         String newSupplierID = scanner.next();
                         String supplierIDEdit = "UPDATE inventory SET supplier_id = ? WHERE product_id = ?";
