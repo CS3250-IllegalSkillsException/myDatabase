@@ -627,13 +627,14 @@ public class Orders extends Database{
 
     public String getOrders(String email){
         //Note that we currently use plaintext emails in the orders database. This code will be changed when we switch to hashed ones.
-        String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
+        String sqlQuery2 = "SELECT order_id, date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
                 + " cust_email = '" + governance.getHash(email,connection) + "'";
         String output = "Orders:\n";
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery2);
             ResultSet results = statement.executeQuery(sqlQuery2);
             while (results.next()) {
+                int order_id = results.getInt("order_id");
                 String date = results.getString("date");
                 String cust_email = results.getString("cust_email");
                 int cust_location = results.getInt("cust_location");
@@ -643,7 +644,7 @@ public class Orders extends Database{
                 //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
                 /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
                         + product_id + " Quantity: " + product_quantity;*/
-                String text = String.format("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
+                String text = String.format("%-15s%-15s%-20s%-15s%-20s%-15s\n",order_id, date, cust_email, cust_location, product_id, product_quantity);
                 output = output + text + "\n";
             }
             return output;
@@ -714,6 +715,18 @@ public class Orders extends Database{
             }
         }
         return 0;
+    }
+
+    public String getOrderDate(String email, String orderID){
+        try{
+            String sql = "SELECT date FROM orders WHERE order_id = '" + orderID + "' and cust_email = '" + email.hashCode() + "'";
+            PreparedStatement s2 = connection.prepareStatement(sql);
+            ResultSet rs = s2.executeQuery();
+            rs.next();
+            return rs.getString("date");
+        } catch (SQLException e){
+            return "Error.";
+        }
     }
 
 }
