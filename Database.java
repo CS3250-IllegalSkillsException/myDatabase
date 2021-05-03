@@ -25,9 +25,14 @@ public class Database extends DatabaseConnection{
         return 0;
     }
 
+    /* This method checks to see if a value from a column in any table exists.
+     * It accepts the table name, column name, and value and executes a query
+     * using them. If a single row is found, the method returns true. */
     public Boolean exists(String table, String column, String id){
+        //Build sql query string
         String sqlQuery = "SELECT * FROM " + table + " WHERE " + column + " = '" + id + "'";
         try{
+            //Execute query
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet verify = statement.executeQuery();
             if (verify.first()){
@@ -45,6 +50,23 @@ public class Database extends DatabaseConnection{
             }
         }
         return false;
+    }
+
+    /* This method executes an sql query that deletes an entry from a specified table based on a value in a specified column*/
+    public void delete(String table, String column, String id){
+        try{
+            //Generate sql query to delete product id and execute
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column  + "= '" + id + "'");
+            statement.executeUpdate();
+            connection.commit();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

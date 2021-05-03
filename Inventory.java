@@ -98,7 +98,10 @@ public class Inventory extends Database {
             e.printStackTrace();
         }
     }
-
+    /* This function displays the orders that match either the Product ID or Supplier ID 
+     * and prints them to the console. Then it asks the User if they would like to read any other
+     * entries before exiting this part of the menu.
+     */
     public void read() {
         PreparedStatement preparedStatement;
         Scanner scanner = new Scanner(System.in);
@@ -426,24 +429,5 @@ public class Inventory extends Database {
             e.printStackTrace();
         }
     }
-
-    public void delete(String id){
-        try{
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = ?");
-            statement.setString(1,id);
-            statement.addBatch();
-            statement.executeBatch();
-            System.out.println("Deleting Product ID: " + id);
-            connection.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
 }

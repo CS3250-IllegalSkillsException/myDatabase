@@ -144,10 +144,13 @@ public class Orders extends Database{
         // needed to access machine's local files
         String home = System.getProperty("user.home");
         int days;
-        System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' will generate a report for the best-selling products in the last 7 days.");
+        int rows;
+        Scanner input = new Scanner(System.in);
+        System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' and '10' will generate a report for the 10 best-selling products in the last 7 days.");
         System.out.println("Enter number of days to generate report on: ");
-        Scanner dayInput = new Scanner(System.in);
-        days = dayInput.nextInt();
+        days = input.nextInt();
+        System.out.println("Enter number of product IDs in report: ");
+        rows = input.nextInt();
 
         try {
             PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\BestProductOrderReport.csv"));
@@ -159,7 +162,7 @@ public class Orders extends Database{
             sb.append("\r\n");
 
             // building the temp table with just product IDs and quantities sold. This tool should work normally even if table columns are changed (as long as product ID and quantities sold are still there)
-            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
+            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC LIMIT " + rows + ";";
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
 
@@ -215,33 +218,6 @@ public class Orders extends Database{
                 }
             } else{
                 System.out.println("The product ID you entered has not been found.");
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void deleteOrders(String id){
-        try{
-            //Run query to see if order exists
-            PreparedStatement sqlCheck = connection.prepareStatement("SELECT * FROM orders WHERE order_id = ?");
-            sqlCheck.setString(1,id);
-            ResultSet exists = sqlCheck.executeQuery();
-            if(exists.next()){
-                PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE order_id = ?");
-                statement.setString(1,id);
-                statement.addBatch();
-                statement.executeBatch();
-                System.out.println("Deleting Order ID: " + id);
-                connection.commit();
-            }
-            else{
-                System.out.println("The order ID you entered doesn't exist.");
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -431,53 +407,51 @@ public class Orders extends Database{
     }
 
 
+    /* This method generates a product recommendation based off of a user's location.
+     * First it searches for all orders from the customer.
+     * If the customer has no existing orders, a random product will be provided instead.
+     * Else, it will then search for any other orders placed by customers with the same zipcode.
+     * If no other customers are found in the area, it will instead search for the first 10 orders with the nearest zipcodes */
     public String getRecommend(String email){
+        //Generate sql query string t osearch for all orders from given customer
         String sqlQuery3 = "SELECT cust_email, cust_location, product_id, product_quantity FROM orders WHERE cust_email = '" + governance.getHash(email,connection) + "'";
-        String output = "";
+        String output;
         try{
             PreparedStatement statement = connection.prepareStatement(sqlQuery3);
             ResultSet verify = statement.executeQuery(sqlQuery3);
-            // Check if customer has any orders
+
+            //Check if customer has any orders
             if(verify.next()){
-                // Check if there are any other orders in the same location
+                //Search for other orders placed in the same zipcode as given customer
                 int zipcode = verify.getInt("cust_location");
                 String sqlQuery4 = "SELECT product_id, product_quantity FROM orders WHERE cust_location = " + zipcode +  " AND cust_email != '" + governance.getHash(email,connection) + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery4, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery(sqlQuery4);
+
+                //Check if other customers with the same zipcode exist
                 if(catalog.next()){
-                    // Recommend random product from other users in the same location
-                    String product_id = getRandomProduct(catalog);
-                    if (product_id.contentEquals("Error.")){
-                        output = "Error.";
-                    } else {
-                        output = product_id;
-                    }
+                    //Get random product id from result set
+                    output = getRandomProduct(catalog);
                 } else {
-                    // Get nearest 10 orders closest to customer zipcode
+                    //Get first 10 orders with the nearest zipcodes
                     String sqlQuery5 = "SELECT product_id, product_quantity FROM orders WHERE cust_location != " + zipcode + " ORDER BY ABS(cust_location - " + zipcode + ") LIMIT 10";
                     PreparedStatement statement3 = connection.prepareStatement(sqlQuery5, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                     ResultSet neighbor = statement3.executeQuery(sqlQuery5);
 
-                    String product_id = getRandomProduct(neighbor);
-                    if (product_id.contentEquals("Error.")){
-                        output = "Error.";
-                    } else {
-                        output = product_id;
-                    }
+                    //Get random product id from result set
+                    output = getRandomProduct(neighbor);
+
                 }
             } else {
-                // find random product to get started
+                //Find a random product from inventory table
                 String sqlQuery4 = "SELECT * FROM inventory";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery4, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery(sqlQuery4);
 
-                String product_id = getRandomProduct(catalog);
-                if (product_id.contentEquals("Error.")){
-                    output = "Error.";
-                } else {
-                    output = product_id;
-                }
+                //Get random product id from result set
+                output = getRandomProduct(catalog);
             }
+            //Return product id
             return output;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -490,33 +464,62 @@ public class Orders extends Database{
         return "Error.";
     }
 
+    /* This method handles the backend logic for the remarketing emails. The method accepts a product id and a user email and generates
+     * a recommended product id based on what other customers who bought the same product bought alongside it.
+     * It first searches for every other order for the same product aside from the current customer.
+     * If no one else ordered the same product before, recommendation will be based on location rather than previous orders (using getRecommend)
+     * Else, it will select a random entry from the resulting query and get the date and customer email from that order entry.
+     * It will then search for other products purchased by that customer on that date.
+     * If no other product was purchased that day, it will instead search for the product purchased closest to the date.
+     * If there are still no products found, it will search by location (using getRecommend) */
     public String RemarketRecommend(String product_id, String email){
         String recommend;
+
+        //Generate sql query string to search for other orders purchasing the same product
         String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + governance.getHash(email,connection) + "'";
+
+        //Create DateFormat object for formatting Date object
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
         try{
+            //Execute initial query
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet customers = statement.executeQuery();
+
+            //Search by location using getRecommend if query returns no results
             if (customers.first() == false){
                 recommend = getRecommend(email);
             } else {
+                //Go to last row to get size of result set
                 customers.last();
                 int size = customers.getRow();
+
+                //Generate a random number from the size of the result set
                 Random rand = new Random();
                 int int_random = rand.nextInt(size) + 1;
+
+                //Go to row number in result set equal to the random number generated
                 customers.absolute(int_random);
+
+                //Get date from result set entry
                 String date = df.format(customers.getDate("date"));
+
+                //Generate and execute sql query to search for other products based on date gotten from 2nd query 
                 String sqlQuery2 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND date(date) = '" + date + "' AND product_id != '" + product_id + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery2, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet catalog = statement2.executeQuery();
+
+                //Search by closest date if no other products purchased on date gotten from 2nd query
                 if  (catalog.first() == false) {
                     String sqlQuery3 = "SELECT * FROM orders WHERE cust_email = '" + customers.getString("cust_email") + "' AND product_id != '" + product_id + "' ORDER BY ABS(`order_id` - '" + customers.getString("order_id") + "')";
                     PreparedStatement statement3 = connection.prepareStatement(sqlQuery3, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                     ResultSet catalog2 = statement3.executeQuery();
+
+                    //Search by location using getRecommend if query returns no results
                     if (catalog2.first() == false) {
                         recommend = getRecommend(email);
                     }
                     else {
+                        //Get random entry from result set
                         catalog2.last();
                         int size3 = catalog2.getRow();
                         int_random = rand.nextInt(size3) + 1;
@@ -524,6 +527,7 @@ public class Orders extends Database{
                         recommend = catalog2.getString("product_id");
                     }
                 } else {
+                    //Get random entry from result set
                     catalog.last();
                     int size2 = catalog.getRow();
                     int_random = rand.nextInt(size2) + 1;
@@ -531,6 +535,7 @@ public class Orders extends Database{
                     recommend = catalog.getString("product_id");
                 }
             }
+            //Return resulting product id
             return recommend;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -544,26 +549,40 @@ public class Orders extends Database{
     }
 
 
-
+    /* This method generates a list of 10 products that are under $20 from the inventory table
+     * The products searched for are based on the page number passed to the method.
+     * Ex: page = 1 searches for the first 10 products under $20, page = 2 searches for the next 20 and so on. */
     public String getUnder20(int page){
+        //Generate sql query string to search for all products in inventory table less than or equal to $20
         String sqlQuery = "SELECT * FROM inventory WHERE sale_price <= 20";
         String output = "Products Under $20 - Page " + page + ":\n\n"
                 + String.format("%-18s%-15s\n", "Product ID","Sale Price")
                 + "----------------------------\n\n";
         try{
+            //Execute query
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet catalog = statement.executeQuery(sqlQuery);
 
+            //Instantiate objects to store line of text, product id, and sale price
             String text;
             String product_id;
             double sale_price;
+
+            //Set upper and lower bounds for row numbers in result set
             int upper = page * 10;
             int lower = upper - 10;
+
+            //Generate list of products under $20
             for (int i = lower; i < upper; i++){
+                //Go to row number in result set based on i
                 catalog.absolute(i+1);
                 product_id = catalog.getString("product_id");
                 sale_price = catalog.getDouble("sale_price");
+                
+                //Generate text entry
                 text = String.format("%-18s%-15s\n\n", product_id, sale_price);
+
+                //Append text entry to output string
                 output += text;
             }
             return output;
@@ -578,14 +597,21 @@ public class Orders extends Database{
         return "Error.";
     }
 
-
+    /* This method returns a random product id from a given result set. */
     public String getRandomProduct (ResultSet catalog){
         try{
+            //Go to last row to get size of result set
             catalog.last();
             int size = catalog.getRow();
+
+            //Generate a random number from the size of the result set
             Random rand = new Random();
             int int_random = rand.nextInt(size) + 1;
+
+            //Go to row number in result set equal to the random number generated
             catalog.absolute(int_random);
+
+            //Get product id from result set entry and return
             String product_id = catalog.getString("product_id");
             return product_id;
         } catch (SQLException ex) {

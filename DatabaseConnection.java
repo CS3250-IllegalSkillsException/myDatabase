@@ -76,7 +76,9 @@ public class DatabaseConnection {
             connection = DriverManager.getConnection(jdbcURL, username, password);
             connection.setAutoCommit(false);
         } catch (SQLException ex){
+            //Error handling for invalid login credentials
             if (ex.getErrorCode() == 1045){
+                //Prompt user for login information again
                 System.out.println("Wrong Username and Password! Please try again");
                 Scanner input = new Scanner(System.in);
                 Console console = System.console();
@@ -84,6 +86,7 @@ public class DatabaseConnection {
 				username = input.nextLine();
 				char[] pwd = console.readPassword("Password: ");
 				password = new String(pwd);
+                //Call initializeConnection method again
                 initializeConnection();
             }
             else {

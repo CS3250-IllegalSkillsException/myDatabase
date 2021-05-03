@@ -75,26 +75,34 @@ public class DiscordBot extends ListenerAdapter {
                 userChannel.sendMessage(ordersList).queue();
                 break;
             }
+            //Handles Recommend functionality
             case "!recommend": {
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
+                //Check if user is logged in
                 if (user.getDiscordId() == 0){
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
+                //Run getRecommend method and output recommended product id.
                 String productRecommend = "Here's a recommended product for you!\nProduct ID: " + db.getRecommend(user.getEmail());
                 userChannel.sendMessage(productRecommend).queue();
                 break;
             }
             case "!under20": {
+                //Handles functionality for finding products under $20
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
+                //Check if user is logged in
                 if (user.getDiscordId() == 0){
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
+                //Check format of command
                 if (parameters.length == 2) {
+                    //Get page number from command input
                     int page = Integer.parseInt(parameters[1]);
+                    //Execute getUnder20 method
                     String under20 = "```" + db.getUnder20(page) + "```";
                     userChannel.sendMessage(under20).queue();
                     break;
