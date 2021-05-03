@@ -99,13 +99,18 @@ public class CustomerReplyandCancel {
 		sendEmail(cust_email, "Order Cancellation", body);
 	}
 
+	/* This method generates the body of the remarketing email. It receives a product id and executes
+	 * a query for that product id in the inventory table to get the sale price and the supplier id */
 	public void customerRecommend(String cust_email, String product_id){
-		//produce remarketing email
+		//Create sql query string
 		String sqlQuery = "SELECT * FROM inventory WHERE product_id = '" + product_id + "'";
 		try {
+			//Execute query
 			PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet product = statement.executeQuery();
 			product.first();
+
+			//Generate email body text
 			String body = "Thank you for shopping with us!\n"
 					+ "Here's another product that you might like!\n"
 					+ "-----------------------------------\n"
