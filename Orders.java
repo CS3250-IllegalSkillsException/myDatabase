@@ -144,10 +144,13 @@ public class Orders extends Database{
         // needed to access machine's local files
         String home = System.getProperty("user.home");
         int days;
-        System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' will generate a report for the best-selling products in the last 7 days.");
+        int rows;
+        Scanner input = new Scanner(System.in);
+        System.out.println("This tool allows you to generate a report for the best-selling products within a given amount of days. \nFor example, entering '7' and '10' will generate a report for the 10 best-selling products in the last 7 days.");
         System.out.println("Enter number of days to generate report on: ");
-        Scanner dayInput = new Scanner(System.in);
-        days = dayInput.nextInt();
+        days = input.nextInt();
+        System.out.println("Enter number of product IDs in report: ");
+        rows = input.nextInt();
 
         try {
             PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\BestProductOrderReport.csv"));
@@ -159,7 +162,7 @@ public class Orders extends Database{
             sb.append("\r\n");
 
             // building the temp table with just product IDs and quantities sold. This tool should work normally even if table columns are changed (as long as product ID and quantities sold are still there)
-            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC;";
+            String query = "SELECT product_id, SUM(product_quantity) AS quantity_sold FROM test.orders WHERE date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) GROUP BY product_id ORDER BY SUM(product_quantity) DESC LIMIT " + rows + ";";
             PreparedStatement ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
 
