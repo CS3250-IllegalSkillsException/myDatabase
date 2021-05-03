@@ -153,7 +153,7 @@ public class DiscordBot extends ListenerAdapter {
                 try{
                      if(crp.withinCancellatioWindow(date)){
                          crp.customerCancel(email, orderID, date);
-                         db.deleteOrders(orderID);
+                         db.delete("orders", "order_id", orderID);
                          userChannel.sendMessage("Your order has been successfully cancelled!").queue();
                      }
                      else{
@@ -246,7 +246,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 break;
             }
-            case "!logout":
+            case "!logout": {
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
                 if (user.getDiscordId() == 0){
@@ -256,6 +256,23 @@ public class DiscordBot extends ListenerAdapter {
                 users.remove(user);
                 userChannel.sendMessage("You have been successfully logged out.").queue();
                 break;
+            }
+            case "!help": {
+                String help = "Welcome to the Illegal Skills Exception Messenger Service!\n"
+                            + "This bot can help you place/cancel orders and see your order history.\n\n"
+                            + "**Commands**\n"
+                            + "!login [username] [password]: Required before being able to use any other commands. Type alongside username and password (without brackets) to login.\n"
+                            + "!logout: Log you out of the messenger service.\n"
+                            + "!orders: Displays your order history.\n"
+                            + "!newOrder [zipcode] [product id] [quantity]: Place a new order for given product id and quantity.\n"
+                            + "!cancelOrder [order id]: Cancels order for given order id (check with !orders command). Note: Orders cannot be canceled 24 hours after it was placed.\n"
+                            + "!recommend: Recommends you a product you might like!\n"
+                            + "!under20 [page]: Displays a list of products under $20. Only displays 10 at a time based on the page number entered along with it";
+                userChannel.sendMessage(help).queue();
+            }
+            default: {
+                userChannel.sendMessage("Command not recognized. Type !help to see a list of commands.").queue();
+            }
         }
     }
 }
