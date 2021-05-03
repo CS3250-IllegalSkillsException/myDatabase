@@ -97,7 +97,10 @@ public class Inventory extends Database {
             e.printStackTrace();
         }
     }
-
+    /* This function displays the orders that match either the Product ID or Supplier ID 
+     * and prints them to the console. Then it asks the User if they would like to read any other
+     * entries before exiting this part of the menu.
+     */
     public void read() {
         PreparedStatement preparedStatement;
         Scanner scanner = new Scanner(System.in);
