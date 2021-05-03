@@ -52,5 +52,22 @@ public class Database extends DatabaseConnection{
         return false;
     }
 
+    /* This method executes an sql query that deletes an entry from a specified table based on a value in a specified column*/
+    public void delete(String table, String column, String id){
+        try{
+            //Generate sql query to delete product id and execute
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column  + "= '" + id + "'");
+            statement.executeUpdate();
+            connection.commit();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }

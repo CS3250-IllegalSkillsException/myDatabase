@@ -271,23 +271,5 @@ public class Inventory extends Database {
             e.printStackTrace();
         }
     }
-    /* This method executes an sql query that deletes a product from the inventory table */
-    public void delete(String id){
-        try{
-            //Generate sql query to delete product id and execute
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM inventory WHERE product_id = '" + id + "'");
-            statement.executeUpdate();
-            System.out.println("Deleting Product ID: " + id);
-            connection.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
 }

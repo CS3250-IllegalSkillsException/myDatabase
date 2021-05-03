@@ -226,23 +226,6 @@ public class Orders extends Database{
         }
     }
 
-    /* This method executes an sql query that deletes a product from the orders table */
-    public void deleteOrders(String id){
-        try{
-            //Generate sql to delete specific order and execute
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE order_id = '" + id + "'");
-            statement.executeUpdate();
-            connection.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /*
     Search function allows you to search either the Inventory or Orders tables for specific entries using filters
     set by the user. User can set one or multiple filters to be applied before displaying matching entries,

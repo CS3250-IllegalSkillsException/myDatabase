@@ -154,7 +154,15 @@ public class Main {
                     System.out.println("-----------Delete Entry-----------");
                     System.out.println("Enter Product ID: ");
                     String product_id = input.nextLine();
-                    db.delete(product_id);
+                    boolean verify = db.exists("inventory", "product_id", product_id);
+                    if (!verify) {
+                        System.out.println("That product id does not exist.");
+                    }
+                    else {
+                        //Execute delete method
+                        db.delete("inventory", "product_id", product_id);
+                        System.out.println("Deleting Product ID: " + product_id);
+                    }
                 } else if (editOption.contentEquals("M")) {
                     System.out.println("-----------Modify Entry-----------");
                     db.modify();
@@ -322,7 +330,7 @@ public class Main {
                     }
                     else {
                         //Execute deleteOrders method
-                        db.deleteOrders(order_id);
+                        db.delete("orders", "order_id", order_id);
                         System.out.println("Deleting Order ID: " + order_id);
                     }
                 } else if (editOption.contentEquals("P")) {
@@ -364,7 +372,7 @@ public class Main {
                     if (test.withinCancellatioWindow(orderDate)) {
                         test.customerCancel(cust_email, order_id, orderDate);
                         System.out.println("Cancellation successful!");
-                        db.deleteOrders(order_id);
+                        db.delete("orders", "order_id", order_id);
                     } else {
                         System.out.println("Sorry, passed cancellation window");
                     }
