@@ -716,7 +716,7 @@ public class Orders extends Database{
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
                 ResultSet results2 = statement2.executeQuery(sqlQuery2);
                 if(results2.next()){
-                    productCost = results2.getDouble("wholesale_cost");
+                    productCost = results2.getDouble("sale_price");
                 } else {
                     //if the product doesn't exist, notify the user of the problem and default to 0 cost.
                     System.out.println("Product does not exist in inventory for: " + product);
