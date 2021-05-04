@@ -44,12 +44,18 @@ public class FinanceReports extends JFrame{
 
     //Generate a GUI interface given the dataset.
     private void createGUI(CategoryDataset data){
+        //Create a chart using the data
         JFreeChart chart = createChart(data);
+        //Create a Panel using the chart
         ChartPanel graphic = new ChartPanel(chart);
+        //Set a couple of aesthetic options.
         graphic.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
         graphic.setBackground(Color.white);
+        //Add the Panel
         add(graphic);
+        //Pack the GUI.
         pack();
+        //Set the window title, and a couple of other GUI behavior options.
         setTitle("Finance Report");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
