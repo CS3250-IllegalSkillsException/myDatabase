@@ -11,6 +11,7 @@ public class Inventory extends Database {
     }
     private final DataGovernance governance = new DataGovernance();
 
+    //Go line by line through a csv and import the inventory data into the database.
     public void importFromCsvFile() {
         try {
             BufferedReader lineReader = new BufferedReader(new FileReader(csvFilePath));
@@ -20,6 +21,7 @@ public class Inventory extends Database {
             PreparedStatement statement = connection.prepareStatement(sql);
             int count = 0;
             while ((lineText = lineReader.readLine()) != null) {
+                //Convert each line into arguments for the MySQL statement.
                 String[] data = lineText.split(",");
                 statement.setString(1, data[0]);
                 statement.setString(2, data[1]);
@@ -27,6 +29,7 @@ public class Inventory extends Database {
                 statement.setString(4, data[3]);
                 statement.setString(5, data[4]);
                 statement.addBatch();
+                //Every 20, execute the batch.
                 if (count >= 20) {
                     statement.executeBatch();
                     count = 0;
@@ -34,7 +37,7 @@ public class Inventory extends Database {
                 count++;
             }
             lineReader.close();
-            // execute the remaining queries
+            //Execute whatever remains in the batch.
             statement.executeBatch();
             connection.commit();
         } catch (IOException ex) {

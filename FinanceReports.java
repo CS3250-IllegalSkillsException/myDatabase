@@ -42,33 +42,46 @@ public class FinanceReports extends JFrame{
         end = endDate;
     }
 
+    //Generate a GUI interface given the dataset.
     private void createGUI(CategoryDataset data){
+        //Create a chart using the data
         JFreeChart chart = createChart(data);
+        //Create a Panel using the chart
         ChartPanel graphic = new ChartPanel(chart);
+        //Set a couple of aesthetic options.
         graphic.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
         graphic.setBackground(Color.white);
+        //Add the Panel
         add(graphic);
+        //Pack the GUI.
         pack();
+        //Set the window title, and a couple of other GUI behavior options.
         setTitle("Finance Report");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
+    //Get the information about the revenue made for a certain time span.
     private CategoryDataset getRevenueData(){
-
+        //Separate the year, month, and day from the start date string.
         int year = Integer.parseInt(start.substring(0,4));
         int month = Integer.parseInt(start.substring(5,7)) - 1;
         int day = Integer.parseInt(start.substring(8));
+        //Create a Calendar starting at that start date.
         GregorianCalendar firstDay = new GregorianCalendar(year,month,day);
+        //Separate the year, month, and day from the end date string.
         year = Integer.parseInt(end.substring(0,4));
         month = Integer.parseInt(end.substring(5,7)) - 1;
         day = Integer.parseInt(end.substring(8));
+        //Create a calendar starting at that end date.
         GregorianCalendar lastDay = new GregorianCalendar(year,month,day);
 
+        //Name our unit and create our dataset.
         final String series = "USD";
         DefaultCategoryDataset weeks = new DefaultCategoryDataset();
 
         double totalRevenue = 0;
+        //Create 7 day chunks of dates from the start date to the end date.
         //Data at the end of the span will be cut off if it doesn't make a full week.
         while(!firstDay.after(lastDay)){
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -80,8 +93,10 @@ public class FinanceReports extends JFrame{
             }
             String formattedDay2 = format.format(firstDay.getTime());
             Week span = new Week(formattedDay,formattedDay2);
+            //Call on the Week class to get the revenue for the week.
             double revenue = span.getRevenueForWeek(db);
             weeks.addValue(revenue,series,formattedDay);
+            //Increment our total revenue for output to the console.
             totalRevenue = totalRevenue + revenue;
             firstDay.add(Calendar.DAY_OF_MONTH,1);
         }
@@ -90,19 +105,25 @@ public class FinanceReports extends JFrame{
     }
 
     private CategoryDataset getOrderData(){
+        //Separate the year, month, and day from the start date string.
         int year = Integer.parseInt(start.substring(0,4));
         int month = Integer.parseInt(start.substring(5,7)) - 1;
         int day = Integer.parseInt(start.substring(8));
+        //Create a Calendar starting at that start date.
         GregorianCalendar firstDay = new GregorianCalendar(year,month,day);
+        //Separate the year, month, and day from the end date string.
         year = Integer.parseInt(end.substring(0,4));
         month = Integer.parseInt(end.substring(5,7)) - 1;
         day = Integer.parseInt(end.substring(8));
+        //Create a calendar starting at that end date.
         GregorianCalendar lastDay = new GregorianCalendar(year,month,day);
 
+        //Name our unit and create our dataset.
         final String series = "Number of Orders";
         DefaultCategoryDataset weeks = new DefaultCategoryDataset();
 
         int totalNumOrders = 0;
+        //Create 7 day chunks of dates from the start date to the end date.
         //Data at the end of the span will be cut off if it doesn't make a full week.
         while(!firstDay.after(lastDay)){
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -114,7 +135,9 @@ public class FinanceReports extends JFrame{
             }
             String formattedDay2 = format.format(firstDay.getTime());
             Week span = new Week(formattedDay,formattedDay2);
+            //Call on the Week class to get the number of orders for the week.
             int numOrders = span.getNumOrdersForWeek(db);
+            //Increment our total revenue for output to the console.
             totalNumOrders = totalNumOrders + numOrders;
             weeks.addValue(numOrders,series,formattedDay);
             firstDay.add(Calendar.DAY_OF_MONTH,1);
@@ -125,7 +148,7 @@ public class FinanceReports extends JFrame{
 
     private JFreeChart createChart(CategoryDataset set){
 
-        // create the chart...
+        //Create the chart
         final JFreeChart chart = ChartFactory.createLineChart(
                 "Finance report",       // chart title
                 "Week",                    // domain axis label
@@ -143,14 +166,14 @@ public class FinanceReports extends JFrame{
         plot.setBackgroundPaint(Color.lightGray);
         plot.setRangeGridlinePaint(Color.white);
 
-        // customise the range axis...
+        //Make changes to the range (y-axis).
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         rangeAxis.setAutoRangeIncludesZero(true);
 
-        // customise the renderer...
+        //Create the renderer for the chart.
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-//        renderer.setDrawShapes(true);
+        //renderer.setDrawShapes(true);
 
         renderer.setSeriesStroke(
                 0, new BasicStroke(
@@ -159,6 +182,7 @@ public class FinanceReports extends JFrame{
                 )
         );
 
+        //Create data labels for the chart.
         renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         renderer.setDefaultItemLabelsVisible(true);
         renderer.setSeriesItemLabelsVisible(0,true);
@@ -166,6 +190,7 @@ public class FinanceReports extends JFrame{
         return chart;
     }
 
+    //Run functions to display the finance reports
     public void displayFinanceReports(){
         yAxisLabel = "Revenue (USD)";
         createGUI(getRevenueData());
@@ -174,6 +199,7 @@ public class FinanceReports extends JFrame{
         setAlwaysOnTop(true);
     }
 
+    //Run functions to display the order reports
     public void displayOrderReports(){
         yAxisLabel = "Number of Customer Orders";
         createGUI(getOrderData());

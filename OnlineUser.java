@@ -34,23 +34,28 @@ public class OnlineUser {
     //returns 1 on success, 2 on default success, and 3 on login failure, 4 on error.
     public int attemptLogin(Connection connection){
         try {
+            //check if the user is in the users database
             int hash_User = email.hashCode();
             String queryCheck = "SELECT * from users WHERE hash_User = '" + hash_User + "'";
             PreparedStatement statement = connection.prepareStatement(queryCheck);
             ResultSet set = statement.executeQuery(queryCheck);
             if(set.next()) {
+                //if they are, check to see if they got the password right
                 int hashU = set.getInt("hash_User");
                 int hashP = set.getInt("hash_Pass");
                 if(password.hashCode() == hashP){
+                    //if so, log them in.
                     System.out.println("Login success for email: " + email);
                     loggedIn = true;
                     return 1;
                 } else {
+                    //if not, don't log them in.
                     System.out.println("Login failure: " + email);
                     loggedIn = false;
                     return 3;
                 }
             }else{
+                //if user isn't in the users database, then permit login for new/simulated user.
                 System.out.println("User for email does not exist: " + email);
                 System.out.println("Login was permitted due to no password.");
                 loggedIn = true;
