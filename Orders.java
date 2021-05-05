@@ -391,8 +391,9 @@ public class Orders extends Database{
                 System.out.printf("%-15s%-22s%-18s%-18s%-12s%-15s\n", "Date", "Customer Email", "Customer Zip", "Product ID", "Quantity", "Order ID");
                 System.out.println("----------------------------------------------------------------------------------------------------");
 
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 while (results2.next()) {
-                    String date = results2.getString("date");
+                    String date = df.format(results2.getDate("date"));
                     String cust_email = results2.getString("cust_email");
                     int cust_location = results2.getInt("cust_location");
                     String product_id = results2.getString("product_id");
@@ -491,7 +492,7 @@ public class Orders extends Database{
         String sqlQuery = "SELECT * FROM orders WHERE product_id = '" + product_id + "' AND cust_email != '" + governance.getHash(email,connection) + "'";
 
         //Create DateFormat object for formatting Date object
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         try{
             //Execute initial query
             PreparedStatement statement = connection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -645,9 +646,10 @@ public class Orders extends Database{
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery2);
             ResultSet results = statement.executeQuery(sqlQuery2);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             while (results.next()) {
                 int order_id = results.getInt("order_id");
-                String date = results.getString("date");
+                String date = df.format(results.getDate("date"));
                 String cust_email = results.getString("cust_email");
                 int cust_location = results.getInt("cust_location");
                 String product_id = results.getString("product_id");
@@ -656,7 +658,7 @@ public class Orders extends Database{
                 //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
                 /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
                         + product_id + " Quantity: " + product_quantity;*/
-                String text = String.format("%-15s%-15s%-20s%-15s%-20s%-15s\n",order_id, date, cust_email, cust_location, product_id, product_quantity);
+                String text = String.format("%-7s%-15s%-30s%-10s%-15s%-4s\n",order_id, date, cust_email, cust_location, product_id, product_quantity);
                 output = output + text + "\n";
             }
             return output;
