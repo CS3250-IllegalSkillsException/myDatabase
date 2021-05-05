@@ -189,6 +189,7 @@ public class Orders extends Database{
         try {
             //check if the product is a real product
             PreparedStatement productCheck = connection.prepareStatement("SELECT * FROM inventory WHERE product_id = ?");
+            connection.setAutoCommit(false);
             productCheck.setString(1,product_id);
             ResultSet product = productCheck.executeQuery();
             if(product.next()){
@@ -229,6 +230,7 @@ public class Orders extends Database{
             } else{
                 System.out.println("The product ID you entered has not been found.");
             }
+            connection.setAutoCommit(true);
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
