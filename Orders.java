@@ -646,7 +646,7 @@ public class Orders extends Database{
                 //System.out.printf("%-15s%-20s%-15s%-20s%-15s\n", date, cust_email, cust_location, product_id, product_quantity);
                 /*String text = "Date: " + date + " Email: " + cust_email + " Location: " + cust_location+ " Product: "
                         + product_id + " Quantity: " + product_quantity;*/
-                String text = String.format("%-15s%-15s%-20s%-15s%-20s%-15s\n",order_id, date, cust_email, cust_location, product_id, product_quantity);
+                String text = String.format("%-7s%-15s%-30s%-10s%-15s%-4s\n",order_id, date, cust_email, cust_location, product_id, product_quantity);
                 output = output + text + "\n";
             }
             return output;
