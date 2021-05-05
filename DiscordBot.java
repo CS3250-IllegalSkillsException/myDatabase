@@ -21,6 +21,7 @@ public class DiscordBot extends ListenerAdapter {
     private ArrayList<OnlineUser> users = new ArrayList<>();
 
     public static void main(String[] args) throws LoginException {
+        //starting the discord bot requires database login information and the token of the discord bot.
         Console cons = System.console();
         String jdbcURL = "jdbc:mysql://localhost:3306/test";
         //get login for database
@@ -37,14 +38,13 @@ public class DiscordBot extends ListenerAdapter {
             System.out.println("Please input the token: ");
             //We are dealing with actual sensitive data that we might have to present. As such I am using the console class.
             //It will look like you are pasting nothing into the console, but you really are.
-            //Also this means that you can only run this from the command line.
             char[] inputToken = cons.readPassword();
             ArrayList<GatewayIntent> intentions = new ArrayList<>();
             intentions.add(GatewayIntent.DIRECT_MESSAGES);
             JDABuilder builder = JDABuilder.create(new String(inputToken), intentions);
             builder.addEventListeners(new DiscordBot());
             builder.build();
-            java.util.Arrays.fill(inputToken, ' '); //Minimizes the amount of time the token is in memory.
+            java.util.Arrays.fill(inputToken, ' '); //Helps to minimize the amount of time the token is in memory.
             java.util.Arrays.fill(databasePassword, ' ');
         } else {
             Scanner input = new Scanner(System.in);
@@ -64,6 +64,7 @@ public class DiscordBot extends ListenerAdapter {
         }
     }
 
+    //Finds the OnlineUser object associated with the userId.
     private OnlineUser findUser(long userId){
         for (OnlineUser user : users) {
             if (userId == user.getDiscordId()) {
@@ -73,6 +74,7 @@ public class DiscordBot extends ListenerAdapter {
         return new OnlineUser(0,"","");
     }
 
+    //Finds the OnlineUser object associated with the email address.
     private OnlineUser findUserByEmail(String email){
         for (OnlineUser user : users) {
             if (email.equals(user.getEmail())) {
@@ -90,21 +92,29 @@ public class DiscordBot extends ListenerAdapter {
         String[] parameters = command.split(" ");
         switch (parameters[0]) {
             case "!orders": {
+                //first, find the OnlineUser class associated with the user who sent this message.
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
                 if (user.getDiscordId() == 0){
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
+                //now, get the list of orders this user made from the database and output it.
                 String ordersList = "```" + db.getOrders(user.getEmail()) + "```";
                 userChannel.sendMessage(ordersList).queue();
                 break;
             }
             case "!newOrder": {
+                //Check if there's the appropriate number of arguments.
+                if (parameters.length != 4) {
+                    userChannel.sendMessage("Usage: !newOrder (location) (product_id) (quantity)").queue();
+                    break;
+                }
                 //Gets location, product, and amount from customer
                 String location = parameters[1];
                 String product_id = parameters[2];
                 String quantity = parameters[3];
+
 
                 //Gets current date
                 SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -116,6 +126,8 @@ public class DiscordBot extends ListenerAdapter {
                 }catch (SQLException e){
                     e.printStackTrace();
                 }
+
+                //Get the user's object.
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
 
@@ -131,6 +143,9 @@ public class DiscordBot extends ListenerAdapter {
 
                 //Sends order confirmation to customer email
                 crp.customerConfirm(email, date, product_id, quantity, location);
+                //Generates a recommendation for the customer and sends the email
+                String productRecommend = db.RemarketRecommend(product_id, email);
+                crp.customerRecommend(email, productRecommend);
                 userChannel.sendMessage("Thank you for your order!").queue();
                 break;
             }
@@ -143,6 +158,14 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
+
+                //check for appropriate arguments
+                if (parameters.length != 2) {
+                    userChannel.sendMessage("Usage: !cancelOrder (orderID)").queue();
+                    userChannel.sendMessage("Hint: Use !orders to find the ids for your orders.").queue();
+                    break;
+                }
+
                 //Gets customer email, orderID, and date
                 String email = user.getEmail();
                 String orderID = parameters[1];
@@ -202,12 +225,15 @@ public class DiscordBot extends ListenerAdapter {
                 }
             }
             case "!login": {
+                //Check to see if the user is already logged in.
                 long userId = event.getAuthor().getIdLong();
                 OnlineUser user = findUser(userId);
                 if (user.getDiscordId() != 0){
                     userChannel.sendMessage("You are already logged in! Use !logout first.").queue();
                     break;
                 }
+
+                //Get the email and password from the user.
                 String email = "";
                 String password = "";
                 if (parameters.length == 3) {
@@ -220,11 +246,15 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("Usage: !login (username) (password)").queue();
                     break;
                 }
+
+                //Check to see if that user is already in the system.
                 user = findUserByEmail(email);
                 if (user.getDiscordId() != 0){
                     userChannel.sendMessage("Someone is already logged in as that user!").queue();
                     break;
                 }
+
+                //Attempt to log in as the user.
                 OnlineUser login = new OnlineUser(userId, email, password);
                 int loginStatus = login.attemptLogin(db.getConnection());
                 switch (loginStatus) {
@@ -233,6 +263,7 @@ public class DiscordBot extends ListenerAdapter {
                         users.add(login);
                         break;
                     case 2:
+                        //This occurs for new users and simulated users.
                         userChannel.sendMessage("Login successful for " + email).queue();
                         userChannel.sendMessage("WARNING: No password set for your login! Contact admin.").queue();
                         users.add(login);
@@ -253,6 +284,7 @@ public class DiscordBot extends ListenerAdapter {
                     userChannel.sendMessage("You are not logged in! Use !login").queue();
                     break;
                 }
+                //if they are, remove that user to log them out.
                 users.remove(user);
                 userChannel.sendMessage("You have been successfully logged out.").queue();
                 break;

@@ -24,6 +24,7 @@ public class BestCustomer extends Database{
 	   number of top customers they want to display. All this information is then outputed into a CSV file in their downloads folder.*/
 	public void customerReport() throws SQLException, FileNotFoundException {
 		try {
+			connection.setAutoCommit(false);
 			//creates Customer Table
 			Statement s = connection.createStatement();
 			s.executeUpdate("TRUNCATE test.customers");
@@ -39,22 +40,30 @@ public class BestCustomer extends Database{
 		    Scanner dayInput = new Scanner(System.in);
 		    days = dayInput.nextInt();
 		    System.out.println("Please wait while we compile the report.....");
+		    int i = 0;
+			String newCust = "INSERT IGNORE INTO customers (email, purchased) VALUES (?,?) ";
+			PreparedStatement statement3 = connection.prepareStatement(newCust);
 			while(set.next()) {
 				String emails = set.getString("cust_email");
-				String newCust = "INSERT IGNORE INTO customers (email, purchased) VALUES (?,?) ";
-				PreparedStatement statement3 = connection.prepareStatement(newCust);
 				String sql = "SELECT cust_email, SUM(subtotal) AS purchased FROM orders WHERE cust_email = '"+emails+"' AND date>= DATE_ADD(CURDATE(), INTERVAL -" + days + " DAY) ";
 				PreparedStatement s2 = connection.prepareStatement(sql);
 				ResultSet rs = s2.executeQuery();
-				while(rs.next()) {
+				if(rs.next()) {
 					double newVal = rs.getDouble("purchased");
 					statement3.setString(1,emails);
 					statement3.setDouble(2,newVal);
 					statement3.addBatch();
-			        statement3.executeBatch();
-			        connection.commit();
+					i++;
+				}
+				if (i >= 20){
+					statement3.executeBatch();
+					connection.commit();
+					i = 0;
 				}
 			}
+			statement3.executeBatch();
+			connection.commit();
+
 			//outputs the Customer Report into a CSV
 			PrintWriter pw = new PrintWriter(new File(home + "\\Downloads\\CustomerOrderReport.csv"));
 			StringBuilder sb = new StringBuilder();
@@ -72,7 +81,7 @@ public class BestCustomer extends Database{
 			Scanner numInput = new Scanner(System.in);
 			int numCustomers = numInput.nextInt();
 			//unhashes the email in the report
-			for(int i = 0; i < numCustomers; i++){
+			for(int j = 0; j < numCustomers; j++){
 				rrs.next();
 				sb.append(governance.unHash(rrs.getString("email"),connection));
 				sb.append(",");
@@ -81,7 +90,8 @@ public class BestCustomer extends Database{
 			}
 			pw.write(sb.toString());
 			pw.close();
-			System.out.println(days + "Report export complete. Find CustomerOrderReport.csv in your Downloads folder.");
+			System.out.println(days + " day report export complete. Find CustomerOrderReport.csv in your Downloads folder.");
+			connection.setAutoCommit(true);
 		} catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {

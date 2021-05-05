@@ -22,6 +22,7 @@ public class Orders extends Database{
         super(user,pass);
     }
 
+    //Simulates customer orders as they come in through the csv file, inputting them into the database.
     public void importCustomerData() {
         try {
             BufferedReader lineReader = new BufferedReader(new FileReader(customerOrderCsv));
@@ -34,7 +35,9 @@ public class Orders extends Database{
             int orderId = getNumEntries() + 1;
             int count = 0;            
             while ((lineText = lineReader.readLine()) != null) {
+                //set the orderID.
                 statement.setInt(1, orderId);
+                //take the data from the csv line by line, adding it to the database and adjusting where necessary.
                 String[] data = lineText.split(",");
                 statement.setString(2, data[0]);
                 statement.setString(3, ""+governance.getHash(data[1],connection));
@@ -48,6 +51,7 @@ public class Orders extends Database{
                 statement.setDouble(7,subtotal);
                 statement.addBatch();
                 statement2.addBatch();
+                //every 20 orders we process, execute our batch.
                 if (count >= 20) {
                     statement.executeBatch();
                     statement2.executeBatch();
@@ -58,7 +62,7 @@ public class Orders extends Database{
             }
             
             lineReader.close();
-            // execute the remaining queries
+            //execute any of the remaining queries in the batch
             statement.executeBatch();
             statement2.executeBatch();
             connection.commit();
@@ -183,10 +187,13 @@ public class Orders extends Database{
 
     public void insertOrders(String date, String cust_email, String cust_location, String product_id, String product_quantity) {
         try {
+            //check if the product is a real product
             PreparedStatement productCheck = connection.prepareStatement("SELECT * FROM inventory WHERE product_id = ?");
+            connection.setAutoCommit(false);
             productCheck.setString(1,product_id);
             ResultSet product = productCheck.executeQuery();
             if(product.next()){
+                //check to see if we have it in stock
                 int quantity = Integer.parseInt(product.getString("quantity"));
                 String updateQ = String.valueOf(quantity - Integer.parseInt(product_quantity));
                 if(Integer.parseInt(product_quantity) <= quantity){
@@ -194,8 +201,10 @@ public class Orders extends Database{
                     PreparedStatement statement = connection.prepareStatement(sql);
                     String sql2 = "UPDATE inventory SET quantity = ? WHERE product_id = ?";
                     PreparedStatement statement2 = connection.prepareStatement(sql2);
+                    //find the appropriate order id
                     int orderID = getNumEntries() + 1;
                     statement.setInt(1, orderID);
+                    //set the rest of the data according to the arguments, making adjustments where necessary.
                     statement.setString(2, date);
                     statement.setString(3, ""+governance.getHash(cust_email,connection));
                     statement.setString(4, cust_location);
@@ -205,9 +214,11 @@ public class Orders extends Database{
                     double subtotal = getSubtotal(product_id, quant);
                     statement.setDouble(7,subtotal);
 
+                    //update the inventory's stock
                     statement2.setString(1, updateQ);
                     statement2.setString(2, product_id);
-                    // execute the remaining queries
+
+                    //execute the remaining queries
                     statement.addBatch();
                     statement2.addBatch();
                     statement.executeBatch();
@@ -219,6 +230,7 @@ public class Orders extends Database{
             } else{
                 System.out.println("The product ID you entered has not been found.");
             }
+            connection.setAutoCommit(true);
         } catch (SQLException ex) {
             ex.printStackTrace();
             try {
@@ -661,16 +673,20 @@ public class Orders extends Database{
         return "Error.";
     }
 
+    //Takes a Day and returns the number of orders that occurred that day.
     public int getNumOrdersForDay(Day date){
+        //Search the orders database for orders made on that date.
         String sqlQuery2 = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
                 + " date LIKE '" + date.getDay() + "%'";
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery2);
             ResultSet results = statement.executeQuery(sqlQuery2);
+            //For each result, increment i
             int i = 0;
             while (results.next()) {
                 i++;
             }
+            //Return our number of orders for the day
             return i;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -683,30 +699,36 @@ public class Orders extends Database{
         return 0;
     }
 
+    //Takes a Day and returns the revenue from the orders for that day.
     public double getRevenueForDay(Day date){
+        //Search the orders database for orders made on that date.
         String sqlQuery = "SELECT date, cust_email, cust_location, product_id, product_quantity FROM orders WHERE"
                 + " date LIKE '" + date.getDay() + "%'";
         try {
             PreparedStatement statement = connection.prepareStatement(sqlQuery);
             ResultSet results = statement.executeQuery(sqlQuery);
+            //For each result, increment totalMoney by the cost of the quantity multiplied by the product's cost.
             double totalMoney = 0.0;
             while (results.next()) {
                 String product = results.getString("product_id");
                 int quantity = results.getInt("product_quantity");
                 double productCost;
+                //get the cost of the item in the inventory
                 String sqlQuery2 = "SELECT product_id,  quantity, wholesale_cost, "
                         + "sale_price, supplier_id FROM inventory "
                         + "WHERE product_id= '" + product + "'";
                 PreparedStatement statement2 = connection.prepareStatement(sqlQuery2);
                 ResultSet results2 = statement2.executeQuery(sqlQuery2);
                 if(results2.next()){
-                    productCost = results2.getDouble("wholesale_cost");
+                    productCost = results2.getDouble("sale_price");
                 } else {
+                    //if the product doesn't exist, notify the user of the problem and default to 0 cost.
                     System.out.println("Product does not exist in inventory for: " + product);
                     productCost = 0;
                 }
                 totalMoney = totalMoney + (quantity * productCost);
             }
+            //return the total revenue.
             return totalMoney;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -719,6 +741,7 @@ public class Orders extends Database{
         return 0;
     }
 
+    //Get the date an order was made by the orderID AND the email. Not just one or the other.
     public String getOrderDate(String email, String orderID){
         try{
             String sql = "SELECT date FROM orders WHERE order_id = '" + orderID + "' and cust_email = '" + email.hashCode() + "'";
